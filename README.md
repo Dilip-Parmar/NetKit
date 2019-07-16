@@ -295,7 +295,7 @@ netkit.purgeSession(shouldCancelRunningTasks: true)
 
 ## License
 
-NetKit is released under the MIT license. [See LICENSE](https://github.com/Dilip-Parmar/NetKit/blob/master/LICENSE.md) for details.
+NetKit is released under the MIT license. [See LICENSE](https://github.com/Dilip-Parmar/NetKit/blob/master/LICENSE) for details.
 
 ## TODO:
 Unit test cases
