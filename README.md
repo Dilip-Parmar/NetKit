@@ -1,5 +1,5 @@
 # NetKit
-A simple HTTP library written in Swift (URLSession Wrapper)
+A simple HTTP library written in Swift (URLSession Wrapper). It has VIPER like architecture that makes it easy to understand.
 
 <div>
 <a href="https://guides.cocoapods.org/">
