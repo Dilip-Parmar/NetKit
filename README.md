@@ -154,18 +154,14 @@ print(progress)
 ## Pause download request
 
 ```ruby
-netkit.pauseDownloadRequestBy(taskId: taskId, completionBlock: { (resumeData) in
-    
-})
+netkit.pauseDownloadRequestBy(taskId: taskId)
 ```
+
 ## Resume download request
 ```ruby
-let taskId = netkit.resumeDownload(resumingData: resumeData, progressBlock: { (progress) in
-print(progress)
-}, completionBlock: { (result) in
-
-})
+netkit.resumeDownloadRequestBy(taskId: taskId)
 ```
+
 ## Upload File Request
 ```ruby
 let fileURL = URL.init(fileURLWithPath: "/Users/...../file.jpg")
@@ -178,11 +174,11 @@ print(progress)
 ## Pause Upload request
 
 ```ruby
-netkit.pauseUpload(taskId: taskId)
+netkit.pauseUploadRequestBy(taskId: taskId)
 ```
 ## Resume Upload request
 ```ruby
-netkit.resumeUpload(taskId: taskId)
+netkit.resumeUploadRequestBy(taskId: taskId)
 ```
 ## Cancel Request
 ```ruby
