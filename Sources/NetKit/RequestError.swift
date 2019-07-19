@@ -51,29 +51,39 @@ public extension RequestError {
             return RequestError.clientError
         case 500..<600:
             return RequestError.serverError
+        default:
+            error = otherErrorFrom(code: code)
+        }
+        return error
+    }
+    
+    private static func otherErrorFrom(code: Int) -> RequestError {
+        var error = RequestError.unknown
+        switch code {
         case -999:
-             error = RequestError.userCancelled
+            error = RequestError.userCancelled
         case -1000:
             error = RequestError.canNotResumeDownload
         case -1001:
-             error = RequestError.timedOut
+            error = RequestError.timedOut
         case -1004:
-             error = RequestError.cannotConnectToHost
+            error = RequestError.cannotConnectToHost
         case -1008:
-             error = RequestError.resourceUnavailable
+            error = RequestError.resourceUnavailable
         case -1009:
-             error = RequestError.notConnectedToInternet
+            error = RequestError.notConnectedToInternet
         case -1018:
-             error = RequestError.internationalRoamingOff
+            error = RequestError.internationalRoamingOff
         case -1019:
-             error = RequestError.callIsActive
+            error = RequestError.callIsActive
         case -1020:
-             error = RequestError.dataNotAllowed
+            error = RequestError.dataNotAllowed
         default:
             return RequestError.unknown
         }
         return error
     }
+    
     /// To get user message based on given request
     @available (iOS 12.0, OSX 10.14, *)
     func getUserMessage() -> String {
@@ -86,6 +96,17 @@ public extension RequestError {
             userMessage = "Request doesn't seem to be proper."
         case .serverError:
             userMessage = "Server seems to be down."
+        case .unknown:
+            userMessage = "System Error"
+        default:
+            userMessage = self.getOtherErrorMessage()
+        }
+        return userMessage
+    }
+    
+    private func getOtherErrorMessage() -> String {
+        var userMessage = ""
+        switch self {
         case .timedOut:
             userMessage = "Request timed out."
         case .cannotConnectToHost:
@@ -104,8 +125,8 @@ public extension RequestError {
             userMessage = "User cancelled request"
         case .canNotResumeDownload:
             userMessage = "Download resume failed"
-        case .unknown:
-            userMessage = "System Error"
+        default:
+            break
         }
         return userMessage
     }

@@ -68,92 +68,108 @@ class TaskExecutor: TaskCancellable {
             if let requestContainer = requestContainer {
                 switch requestContainer.requestType {
                 case .data:
-                    if let request = requestContainer.request {
-                        self.executorQueue?.async {
-                            switch requestContainer.currentState {
-                            case .submitted:
-                                if let dataTask = self.urlSession?.dataTask(with: request) {
-                                    requestContainer.taskId = dataTask.taskIdentifier
-                                    requestContainer.currentState = .running
-                                    dataTask.resume()
-                                }
-                            case .cancelled:
-                                self.cancelRequestBy(requestId: requestContainer.requestId, taskType: .data)
-                            default:
-                                break
-                            }
-                        }
-                    }
+                    self.handleDataTask(requestContainer: requestContainer)
                 case .download:
-                    if let request = requestContainer.request {
-                        self.executorQueue?.async {
-                            switch requestContainer.currentState {
-                            case .submitted:
-                                if let dataTask = self.urlSession?.downloadTask(with: request) {
-                                    requestContainer.taskId = dataTask.taskIdentifier
-                                    dataTask.resume()
-                                    requestContainer.currentState = .running
-                                    requestContainer.taskId = dataTask.taskIdentifier
-                                }
-                            case .paused:
-                                self.getTaskBy(taskId: requestContainer.taskId, taskType: .download, completion: { (task) in
+                    self.handleDownloadTask(requestContainer: requestContainer)
+                case .upload:
+                    self.handleUploadTask(requestContainer: requestContainer)
+                }
+            }
+        }
+    }
+    
+    func handleDataTask(requestContainer: RequestContainer) {
+        if let request = requestContainer.request {
+            self.executorQueue?.async {
+                switch requestContainer.currentState {
+                case .submitted:
+                    if let dataTask = self.urlSession?.dataTask(with: request) {
+                        requestContainer.taskId = dataTask.taskIdentifier
+                        requestContainer.currentState = .running
+                        dataTask.resume()
+                    }
+                case .cancelled:
+                    self.cancelRequestBy(requestId: requestContainer.requestId, taskType: .data)
+                default:
+                    break
+                }
+            }
+        }
+    }
+    
+    func handleDownloadTask(requestContainer: RequestContainer) {
+        if let request = requestContainer.request {
+            self.executorQueue?.async {
+                switch requestContainer.currentState {
+                case .submitted:
+                    if let dataTask = self.urlSession?.downloadTask(with: request) {
+                        requestContainer.taskId = dataTask.taskIdentifier
+                        dataTask.resume()
+                        requestContainer.currentState = .running
+                        requestContainer.taskId = dataTask.taskIdentifier
+                    }
+                case .paused:
+                    self.getTaskBy(taskId: requestContainer.taskId,
+                                   taskType: .download, completion: { (task) in
                                     if let downloadTask = task as? URLSessionDownloadTask {
                                         downloadTask.cancel(byProducingResumeData: { (resumeData) in
                                             requestContainer.resumeData = resumeData
                                         })
                                     }
-                                })
-                            case .resumed:
-                                if let resumeData = requestContainer.resumeData {
-                                    if let dataTask = self.urlSession?.downloadTask(withResumeData: resumeData) {
-                                        requestContainer.taskId = dataTask.taskIdentifier
-                                        requestContainer.currentState = .running
-                                        dataTask.resume()
-                                        requestContainer.resumeData = nil
-                                    }
-                                }
-                            case .cancelled:
-                                self.cancelRequestBy(requestId: requestContainer.requestId, taskType: .download)
-                            case .finished:
-                                let error = NSError.init(domain: NSURLErrorDomain, code: -999, userInfo: nil)
-                                self.taskFinalizer?.finalizePausedTask(error: error, requestContainer: requestContainer)
-                            default:
-                                break
-                            }
-                        }
+                    })
+                case .resumed:
+                    if let resumeData = requestContainer.resumeData,
+                        let dataTask = self.urlSession?.downloadTask(withResumeData: resumeData) {
+                        requestContainer.taskId = dataTask.taskIdentifier
+                        requestContainer.currentState = .running
+                        dataTask.resume()
+                        requestContainer.resumeData = nil
                     }
-                case .upload:
-                    if let request = requestContainer.request {
-                        self.executorQueue?.async {
-                            switch requestContainer.currentState {
-                            case .submitted:
-                                if let data = requestContainer.uploadFileData, let dataTask = self.urlSession?.uploadTask(with: request, from: data) {
-                                    requestContainer.taskId = dataTask.taskIdentifier
-                                    dataTask.resume()
-                                    requestContainer.currentState = .running
-                                }
-                            case .paused:
-                                self.getTaskBy(taskId: requestContainer.taskId, taskType: .upload, completion: { (task) in
+                case .cancelled:
+                    self.cancelRequestBy(requestId: requestContainer.requestId, taskType: .download)
+                case .finished:
+                    let error = NSError.init(domain: NSURLErrorDomain, code: -999, userInfo: nil)
+                    self.taskFinalizer?.finalizePausedTask(error: error, requestContainer: requestContainer)
+                default:
+                    break
+                }
+            }
+        }
+    }
+    
+    func handleUploadTask(requestContainer: RequestContainer) {
+        if let request = requestContainer.request {
+            self.executorQueue?.async {
+                switch requestContainer.currentState {
+                case .submitted:
+                    if let data = requestContainer.uploadFileData,
+                        let dataTask = self.urlSession?.uploadTask(with: request, from: data) {
+                        requestContainer.taskId = dataTask.taskIdentifier
+                        dataTask.resume()
+                        requestContainer.currentState = .running
+                    }
+                case .paused:
+                    self.getTaskBy(taskId: requestContainer.taskId,
+                                   taskType: .upload, completion: { (task) in
                                     if let uplodTask = task as? URLSessionUploadTask {
                                         uplodTask.suspend()
                                         requestContainer.currentState = .paused
                                     }
-                                })
-                            case .resumed:
-                                self.getTaskBy(taskId: requestContainer.taskId, taskType: .upload, completion: { (task) in
+                    })
+                case .resumed:
+                    self.getTaskBy(taskId: requestContainer.taskId,
+                                   taskType: .upload, completion: { (task) in
                                     if let uplodTask = task as? URLSessionUploadTask {
                                         uplodTask.resume()
                                         requestContainer.currentState = .running
                                     }
-                                })
-                            case .cancelled: fallthrough
-                            case .finished:
-                                self.cancelRequestBy(requestId: requestContainer.requestId, taskType: .upload)
-                            default:
-                                break
-                            }
-                        }
-                    }
+                    })
+                case .cancelled: print("cancelled")
+                    fallthrough
+                case .finished:
+                    self.cancelRequestBy(requestId: requestContainer.requestId, taskType: .upload)
+                default:
+                    break
                 }
             }
         }

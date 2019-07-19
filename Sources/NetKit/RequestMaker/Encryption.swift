@@ -76,8 +76,7 @@ public struct AES256 {
                                  Array(initialVector),
                                  Array(data),
                                  data.count,
-                                 &outputBuffer,
-                                 outputLength, &numBytesEncrypted)
+                                 &outputBuffer, outputLength, &numBytesEncrypted)
             guard status == kCCSuccess else { return nil }
             let outputBytes = initialVector + outputBuffer.prefix(numBytesEncrypted)
             return Data(outputBytes)

@@ -41,81 +41,95 @@ class TaskFinalizer: TaskExecutorToFinalizer {
             
             switch tuple {
             case (task as? URLSessionDataTask, .data):
-                switch requestContainer.currentState {
-                case .finished:
-                    if let response = task.response as? HTTPURLResponse {
-                        if 200...299 ~= response.statusCode {
-                            let successBlock = DataSuccess.block(requestContainer.receivedData, response)
-                            requestContainer.dataCompletion?(.success(successBlock))
-                        } else {
-                            let requestError = RequestError.errorFrom(code: response.statusCode)
-                            requestContainer.dataCompletion?(.failure(requestError))
-                        }
-                    }
-                case .failed:
-                    if let error = error as NSError? {
-                        let requestError = RequestError.errorFrom(code: error.code)
-                        requestContainer.dataCompletion?(.failure(requestError))
-                    }
-                default:
-                    requestContainer.dataCompletion?(.failure(.clientError))
-                }
+                self.handleDataTask(task: task, error: error, requestContainer: requestContainer)
                 self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
                 
             case (task as? URLSessionDownloadTask, .download):
-                switch requestContainer.currentState {
-                case .finished:
-                    if let response = task.response as? HTTPURLResponse {
-                        if 200...299 ~= response.statusCode {
-                            let successBlock = DownloadSuccess.block(requestContainer.downloadFileURL, response)
-                            requestContainer.downloadCompletion?(.success(successBlock))
-                        } else {
-                            let requestError = RequestError.errorFrom(code: response.statusCode)
-                            requestContainer.downloadCompletion?(.failure(requestError))
-                        }
-                        self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
-                    }
-                case .failed:
-                    var requestError = RequestError.unknown
-                    if let error = error as NSError? {
-                        if error.code == -999, let resumeData = error.userInfo["NSURLSessionDownloadTaskResumeData"] as? Data {
-                            requestContainer.resumeData = resumeData
-                            requestContainer.currentState = .paused
-                        } else {
-                            requestError = RequestError.errorFrom(code: error.code)
-                            requestContainer.downloadCompletion?(.failure(requestError))
-                            self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
-                        }
-                    }
-                default:
-                    requestContainer.downloadCompletion?(.failure(.clientError))
-                    self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
-                    break
-                }
+                self.handleDownloadTask(task: task, error: error, requestContainer: requestContainer)
+                
             case (task as? URLSessionUploadTask, .upload):
-                switch requestContainer.currentState {
-                case .finished:
-                    if let response = task.response as? HTTPURLResponse {
-                        if 200...299 ~= response.statusCode {
-                            let successBlock = UploadSuccess.block(requestContainer.receivedData, response)
-                            requestContainer.uploadCompletion?(.success(successBlock))
-                        } else {
-                            let requestError = RequestError.errorFrom(code: response.statusCode)
-                            requestContainer.uploadCompletion?(.failure(requestError))
-                        }
-                    }
-                case .failed:
-                    if let error = error as NSError? {
-                        let requestError = RequestError.errorFrom(code: error.code)
-                        requestContainer.uploadCompletion?(.failure(requestError))
-                    }
-                default:
-                    requestContainer.uploadCompletion?(.failure(.clientError))
-                }
+                self.handleUploadTask(task: task, error: error, requestContainer: requestContainer)
                 self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
+            
             default:
                 break
             }
+        }
+    }
+    
+    private func handleDataTask(task: URLSessionTask, error: Error?, requestContainer: RequestContainer) {
+        switch requestContainer.currentState {
+        case .finished:
+            if let response = task.response as? HTTPURLResponse {
+                if 200...299 ~= response.statusCode {
+                    let successBlock = DataSuccess.block(requestContainer.receivedData, response)
+                    requestContainer.dataCompletion?(.success(successBlock))
+                } else {
+                    let requestError = RequestError.errorFrom(code: response.statusCode)
+                    requestContainer.dataCompletion?(.failure(requestError))
+                }
+            }
+        case .failed:
+            if let error = error as NSError? {
+                let requestError = RequestError.errorFrom(code: error.code)
+                requestContainer.dataCompletion?(.failure(requestError))
+            }
+        default:
+            requestContainer.dataCompletion?(.failure(.clientError))
+        }
+    }
+    
+    private func handleDownloadTask(task: URLSessionTask, error: Error?, requestContainer: RequestContainer) {
+        switch requestContainer.currentState {
+        case .finished:
+            if let response = task.response as? HTTPURLResponse {
+                if 200...299 ~= response.statusCode {
+                    let successBlock = DownloadSuccess.block(requestContainer.downloadFileURL, response)
+                    requestContainer.downloadCompletion?(.success(successBlock))
+                } else {
+                    let requestError = RequestError.errorFrom(code: response.statusCode)
+                    requestContainer.downloadCompletion?(.failure(requestError))
+                }
+                self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
+            }
+        case .failed:
+            var requestError = RequestError.unknown
+            if let error = error as NSError? {
+                if error.code == -999,
+                    let resumeData = error.userInfo["NSURLSessionDownloadTaskResumeData"] as? Data {
+                    requestContainer.resumeData = resumeData
+                    requestContainer.currentState = .paused
+                } else {
+                    requestError = RequestError.errorFrom(code: error.code)
+                    requestContainer.downloadCompletion?(.failure(requestError))
+                    self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
+                }
+            }
+        default:
+            requestContainer.downloadCompletion?(.failure(.clientError))
+            self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
+        }
+    }
+    
+    private func handleUploadTask(task: URLSessionTask, error: Error?, requestContainer: RequestContainer) {
+        switch requestContainer.currentState {
+        case .finished:
+            if let response = task.response as? HTTPURLResponse {
+                if 200...299 ~= response.statusCode {
+                    let successBlock = UploadSuccess.block(requestContainer.receivedData, response)
+                    requestContainer.uploadCompletion?(.success(successBlock))
+                } else {
+                    let requestError = RequestError.errorFrom(code: response.statusCode)
+                    requestContainer.uploadCompletion?(.failure(requestError))
+                }
+            }
+        case .failed:
+            if let error = error as NSError? {
+                let requestError = RequestError.errorFrom(code: error.code)
+                requestContainer.uploadCompletion?(.failure(requestError))
+            }
+        default:
+            requestContainer.uploadCompletion?(.failure(.clientError))
         }
     }
     
