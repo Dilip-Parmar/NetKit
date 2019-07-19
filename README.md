@@ -45,7 +45,7 @@ A simple HTTP library written in Swift (URLSession Wrapper). It has VIPER like a
 - Singleton free
 - No external dependencies
 - Simple and Configurable Request
-- Single/Multiple Data Calls
+- Single Data Call
 - Resumable Download file request 
 - Resumable Upload file request
 - Cancellable requests
