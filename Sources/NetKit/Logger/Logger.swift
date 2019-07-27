@@ -34,14 +34,19 @@ internal class Logger {
     }
     private lazy var fileHandle: FileHandle? = {
         var fileHandle: FileHandle?
-        if let fileName = fileName,
-            let userDir = try? FileManager.default.url(for: .userDirectory,
-                                                       in: .userDomainMask,
-                                                       appropriateFor: nil,
-                                                       create: true) {
-            let fileURL = userDir.appendingPathComponent(fileName)
-            fileHandle = try? FileHandle(forWritingTo: fileURL)
-            debugPrint("Logs file URL - \(fileURL)\n")
+        let fileManager = FileManager.default
+        guard let fileName = self.fileName else {
+            return nil
+        }
+        let filePath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
+        let url = NSURL(fileURLWithPath: filePath)
+        if let fileFullURL = url.appendingPathComponent(fileName) {
+            if !fileManager.fileExists(atPath: fileFullURL.path, isDirectory: nil) {
+                fileManager.createFile(atPath: fileFullURL.path, contents: nil, attributes: nil)
+            }
+            fileHandle = try? FileHandle(forWritingTo: fileFullURL)
+        } else {
+            debugPrint("FILE PATH NOT AVAILABLE")
         }
         return fileHandle
     }()
@@ -60,7 +65,7 @@ internal class Logger {
             self.writeToFile(request: request, response: response, error: error)
             
             //Continue to print logs in console
-            debugPrint("--------------- Request Log Starts ---------------\n")
+            debugPrint("\n\n--------------- Request Log Starts ---------------\n")
             debugPrint("--------------- Request Headers ---------------\n")
             if let request = request, let allHTTPHeaderFields = request.allHTTPHeaderFields {
                 for (headerKey, headerValue) in allHTTPHeaderFields {
@@ -87,7 +92,7 @@ internal class Logger {
     private func writeToFile(request: URLRequest?, response: URLResponse?, error: Error?) {
         if self.fileName != nil {
             self.fileHandle?.seekToEndOfFile()
-            var logStr: String = "\n"
+            var logStr: String = "\n\n"
             logStr += "--------------- Request Log Starts ---------------\n"
             logStr += "--------------- Request Headers ---------------\n"
             if let request = request, let allHTTPHeaderFields = request.allHTTPHeaderFields {

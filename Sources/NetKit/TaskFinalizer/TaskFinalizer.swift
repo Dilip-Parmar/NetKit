@@ -57,7 +57,7 @@ class TaskFinalizer: TaskExecutorToFinalizer {
             default:
                 break
             }
-            self.logger?.log(request: task.originalRequest, response: task.response, error: error)
+            self.logger?.log(request: task.currentRequest, response: task.response, error: error)
         }
     }
     
