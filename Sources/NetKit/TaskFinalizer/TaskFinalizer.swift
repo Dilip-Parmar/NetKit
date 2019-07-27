@@ -25,12 +25,15 @@ import Foundation
 class TaskFinalizer: TaskExecutorToFinalizer {
     
     private weak var dispatcher: TaskDispatcher?
+    private var logger: Logger?
     
     init(dispatcher: TaskDispatcher?) {
         self.dispatcher = dispatcher
+        self.logger = Logger.init(fileName: "NetKitLogs.rtf")
     }
     deinit {
         self.dispatcher = nil
+        self.logger = nil
     }
     
     @available (iOS 12.0, OSX 10.14, *)
@@ -54,6 +57,7 @@ class TaskFinalizer: TaskExecutorToFinalizer {
             default:
                 break
             }
+            self.logger?.log(request: task.originalRequest, response: task.response, error: error)
         }
     }
     
