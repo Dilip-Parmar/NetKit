@@ -164,7 +164,7 @@ class TaskExecutor: TaskCancellable {
                                         requestContainer.currentState = .running
                                     }
                     })
-                case .cancelled: print("cancelled")
+                case .cancelled: debugPrint("cancelled")
                     fallthrough
                 case .finished:
                     self.cancelRequestBy(requestId: requestContainer.requestId, taskType: .upload)

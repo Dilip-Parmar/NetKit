@@ -20,3 +20,97 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 import Foundation
+
+internal class Logger {
+    
+    // MARK: - Properties
+    private var loggerQueue: DispatchQueue?
+    private var fileName: String?
+    
+    // MARK: - Initializer
+    init(fileName: String?) {
+        self.fileName = fileName
+        self.loggerQueue = DispatchQueue.init(label: "NetKit\(UUID())", qos: .background)
+    }
+    private lazy var fileHandle: FileHandle? = {
+        var fileHandle: FileHandle?
+        if let fileName = fileName,
+            let userDir = try? FileManager.default.url(for: .userDirectory,
+                                                       in: .userDomainMask,
+                                                       appropriateFor: nil,
+                                                       create: true) {
+            let fileURL = userDir.appendingPathComponent(fileName)
+            fileHandle = try? FileHandle(forWritingTo: fileURL)
+            debugPrint("Logs file URL - \(fileURL)\n")
+        }
+        return fileHandle
+    }()
+    // MARK: - De-Initializer
+    deinit {
+        fileHandle?.closeFile()
+        self.loggerQueue = nil
+        self.fileName = nil
+        self.fileHandle = nil
+    }
+    
+    // MARK: - Logging
+    func log(request: URLRequest?, response: URLResponse?, error: Error?) {
+        self.loggerQueue?.async {
+            //Write to file
+            self.writeToFile(request: request, response: response, error: error)
+            
+            //Continue to print logs in console
+            debugPrint("--------------- Request Log Starts ---------------\n")
+            debugPrint("--------------- Request Headers ---------------\n")
+            if let request = request, let allHTTPHeaderFields = request.allHTTPHeaderFields {
+                for (headerKey, headerValue) in allHTTPHeaderFields {
+                    debugPrint("\(headerKey) - \(headerValue)\n")
+                }
+            }
+            debugPrint("--------------- Response Headers ---------------\n")
+            if let response = response as? HTTPURLResponse {
+                for (headerKey, headerValue) in response.allHeaderFields {
+                    debugPrint("\(headerKey) - \(headerValue)\n")
+                }
+            }
+            if let error = error, let errorFound = error as NSError? {
+                debugPrint("--------------- Error ---------------\n")
+                debugPrint("Error Code - \(errorFound.code)\n")
+                debugPrint("Error Domain - \(errorFound.domain)\n")
+                debugPrint("Error UserInfo - \(errorFound.userInfo)\n")
+            }
+            debugPrint("--------------- Request Log Ends ---------------\n")
+        }
+    }
+    
+    // MARK: - Write to file
+    private func writeToFile(request: URLRequest?, response: URLResponse?, error: Error?) {
+        if self.fileName != nil {
+            self.fileHandle?.seekToEndOfFile()
+            var logStr: String = "\n"
+            logStr += "--------------- Request Log Starts ---------------\n"
+            logStr += "--------------- Request Headers ---------------\n"
+            if let request = request, let allHTTPHeaderFields = request.allHTTPHeaderFields {
+                for (headerKey, headerValue) in allHTTPHeaderFields {
+                    logStr += "\(headerKey) - \(headerValue)\n"
+                }
+            }
+            logStr += "--------------- Response Headers ---------------\n"
+            if let response = response as? HTTPURLResponse {
+                for (headerKey, headerValue) in response.allHeaderFields {
+                    logStr += "\(headerKey) - \(headerValue)\n"
+                }
+            }
+            if let error = error, let errorFound = error as NSError? {
+                logStr += "--------------- Error ---------------\n"
+                logStr += "Error Code - \(errorFound.code)\n"
+                logStr += "Error Domain - \(errorFound.domain)\n"
+                logStr += "Error UserInfo - \(errorFound.userInfo)\n"
+            }
+            logStr += "--------------- Request Log Ends ---------------\n"
+            if let logData = logStr.data(using: .utf8, allowLossyConversion: false) {
+                fileHandle?.write(logData)
+            }
+        }
+    }
+}
