@@ -29,7 +29,7 @@ class TaskFinalizer: TaskExecutorToFinalizer {
     
     init(dispatcher: TaskDispatcher?) {
         self.dispatcher = dispatcher
-        self.logger = Logger.init(fileName: "NetKitLogs.rtf")
+        self.logger = Logger.init(fileName: "NetKitLogs.txt")
     }
     deinit {
         self.dispatcher = nil
