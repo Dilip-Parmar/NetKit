@@ -114,19 +114,13 @@ let request = HTTPRequest.init(baseURL: "https://www.google.com", path: "/safe",
 
 let taskId = netkit.send(request: request, authDetail: nil, completionBlock: { (urlResponse, result) in
 switch result {
-    case .failure(let failure):
-    switch failure {
-        default:
-            break
-    }
-    case .success(let success):
-        switch success {
-        case .block(let data, let response):
-            if let data = data {
+    case .failure(let error):
+       print("\(error!)")
+    case .success(let data):
+        if let data = data {
             let json = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
             print(response)
             print(json)
-           }
         }
     }
 })
@@ -140,14 +134,10 @@ let taskId = netkit.sendDownload(request: request, authDetail: nil, progressBloc
 print(progress)
 }, completionBlock: { (urlResponse, result) in
     switch result {      
-      case .success(let success):
-        switch success {
-            case .block(let url, let response):
-        }
-      case .failure(let failure):
-        switch failure {
-        default:
-        }      
+      case .success(let url):
+        print("\(url!)")
+      case .failure(let error):
+        print("\(error!)")   
     }
 })
 ```
@@ -168,7 +158,16 @@ let fileURL = URL.init(fileURLWithPath: "/Users/...../file.jpg")
 let taskId = netkit.sendUpload(request: request, fileURL: fileURL, authDetail: nil, progressBlock: { (progress) in
 print(progress)
 }, completionBlock: { (urlResponse, result) in
-
+   switch result {
+    case .failure(let error):
+      print("\(error!)")
+    case .success(let data):
+        if let data = data {
+            let json = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+            print(response)
+            print(json)
+        }
+    }
 })
 ```
 ## Pause Upload request
@@ -197,19 +196,13 @@ let authDetail = AuthDetail.init(authType: .serverTrust, shouldValidateHost: tru
 
 let taskId = netkit.send(request: request, authDetail: authDetail, completionBlock: { (urlResponse, result) in
     switch result {
-    case .failure(let failure):
-        switch failure {
-        default:
-            break
-        }
-    case .success(let success):
-        switch success {
-        case .block(let data, let response):
-            if let data = data {
-                let json = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
-                print(response)
-                print(json)
-            }
+    case .failure(let error):
+      print("\(error!)")
+    case .success(let data):
+        if let data = data {
+            let json = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+            print(response)
+            print(json)
         }
     }
 })
@@ -225,19 +218,13 @@ let authDetail = AuthDetail.init(authType: .HTTPBasic, shouldValidateHost: true,
 
 let taskId = netkit.send(request: request, authDetail: authDetail, completionBlock: { (urlResponse, result) in
     switch result {
-    case .failure(let failure):
-        switch failure {
-        default:
-            break
-    }
-    case .success(let success):
-    switch success {
-        case .block(let data, let response):
-            if let data = data {
-                let json = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
-                print(response)
-                print(json)
-            }
+    case .failure(let error):
+      print("\(error!)")
+    case .success(let data):
+        if let data = data {
+            let json = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+            print(response)
+            print(json)
         }
     }
 })
@@ -253,19 +240,13 @@ let authDetail = AuthDetail.init(authType: .HTTPDigest, shouldValidateHost: true
 
 let taskId = netkit.send(request: request, authDetail: authDetail, completionBlock: { (urlResponse, result) in
     switch result {
-    case .failure(let failure):
-        switch failure {
-        default:
-            break
-        }
-    case .success(let success):
-        switch success {
-        case .block(let data, let response):
-            if let data = data {
-                let json = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
-                print(response)
-                print(json)
-            }
+    case .failure(let error):
+      print("\(error!)")
+    case .success(let data):
+        if let data = data {
+            let json = try? JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+            print(response)
+            print(json)
         }
     }
 })
