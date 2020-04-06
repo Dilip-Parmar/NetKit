@@ -112,7 +112,7 @@ Use [URLSessionConfiguration](https://developer.apple.com/documentation/foundati
 let queryParames = ["country":"in", "apiKey":"daae11"]
 let request = HTTPRequest.init(baseURL: "https://www.google.com", path: "/safe", method: .GET, requestBody: nil, bodyEncoding: nil, requestHeaders: ["Content-Type":"application/json"], queryParams: queryParames, queryParamsEncoding: .default, cachePolicy: .reloadIgnoringCacheData, timeoutInterval: 60, networkServiceType: .background, bodyEncryption: nil)
 
-let taskId = netkit.send(request: request, authDetail: nil, completionBlock: { (result) in
+let taskId = netkit.send(request: request, authDetail: nil, completionBlock: { (urlResponse, result) in
 switch result {
     case .failure(let failure):
     switch failure {
@@ -138,7 +138,7 @@ let request = HTTPRequest.init(baseURL: "https://www.google.com", path: "/safe",
 
 let taskId = netkit.sendDownload(request: request, authDetail: nil, progressBlock: { (progress) in
 print(progress)
-}, completionBlock: { (result) in
+}, completionBlock: { (urlResponse, result) in
     switch result {      
       case .success(let success):
         switch success {
@@ -167,7 +167,7 @@ netkit.resumeDownloadRequestBy(taskId: taskId)
 let fileURL = URL.init(fileURLWithPath: "/Users/...../file.jpg")
 let taskId = netkit.sendUpload(request: request, fileURL: fileURL, authDetail: nil, progressBlock: { (progress) in
 print(progress)
-}, completionBlock: { (result) in
+}, completionBlock: { (urlResponse, result) in
 
 })
 ```
@@ -195,7 +195,7 @@ let request = HTTPRequest.init(baseURL: "https://www.google.com", path: "/safe",
 
 let authDetail = AuthDetail.init(authType: .serverTrust, shouldValidateHost: true, host: "google.com", userCredential: nil, certificateFileName: "my-certificate")
 
-let taskId = netkit.send(request: request, authDetail: authDetail, completionBlock: { (result) in
+let taskId = netkit.send(request: request, authDetail: authDetail, completionBlock: { (urlResponse, result) in
     switch result {
     case .failure(let failure):
         switch failure {
@@ -223,7 +223,7 @@ let userCredential = URLCredential.init(user: "user", password: "password", pers
 
 let authDetail = AuthDetail.init(authType: .HTTPBasic, shouldValidateHost: true, host: "google.com", userCredential: userCredential, certificateFileName: nil)
 
-let taskId = netkit.send(request: request, authDetail: authDetail, completionBlock: { (result) in
+let taskId = netkit.send(request: request, authDetail: authDetail, completionBlock: { (urlResponse, result) in
     switch result {
     case .failure(let failure):
         switch failure {
@@ -251,7 +251,7 @@ let userCredential = URLCredential.init(user: "user", password: "password", pers
 
 let authDetail = AuthDetail.init(authType: .HTTPDigest, shouldValidateHost: true, host: "google.com", userCredential: userCredential, certificateFileName: nil)
 
-let taskId = netkit.send(request: request, authDetail: authDetail, completionBlock: { (result) in
+let taskId = netkit.send(request: request, authDetail: authDetail, completionBlock: { (urlResponse, result) in
     switch result {
     case .failure(let failure):
         switch failure {
