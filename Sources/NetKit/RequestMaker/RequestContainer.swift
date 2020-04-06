@@ -22,22 +22,7 @@
 import Foundation
 
 @available (iOS 12.0, OSX 10.14, *)
-public enum DataSuccess {
-    case block (Data?, URLResponse?)
-}
-
-@available (iOS 12.0, OSX 10.14, *)
-public enum DownloadSuccess {
-    case block (URL?, URLResponse?)
-}
-
-@available (iOS 12.0, OSX 10.14, *)
-public enum UploadSuccess {
-    case block (Data?, URLResponse?)
-}
-
-@available (iOS 12.0, OSX 10.14, *)
-public typealias DataCompletion = ((Result<DataSuccess, RequestError>) -> Void)
+public typealias DataCompletion = ((HTTPURLResponse?, Result<Data?, RequestError>) -> Void)
 
 @available (iOS 12.0, OSX 10.14, *)
 public typealias DownloadProgressBlock = ((Float) -> Void)
@@ -46,10 +31,10 @@ public typealias DownloadProgressBlock = ((Float) -> Void)
 public typealias UploadProgressBlock = ((Float) -> Void)
 
 @available (iOS 12.0, OSX 10.14, *)
-public typealias DownloadCompletion = ((Result<DownloadSuccess, RequestError>) -> Void)
+public typealias DownloadCompletion = ((HTTPURLResponse?, Result<URL?, RequestError>) -> Void)
 
 @available (iOS 12.0, OSX 10.14, *)
-public typealias UploadCompletion = ((Result<UploadSuccess, RequestError>) -> Void)
+public typealias UploadCompletion = ((HTTPURLResponse?, Result<Data?, RequestError>) -> Void)
 
 @available (iOS 12.0, OSX 10.14, *)
 public typealias ChallengeCompletion = (URLSession.AuthChallengeDisposition, URLCredential?) -> Void

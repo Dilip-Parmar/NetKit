@@ -66,20 +66,19 @@ class TaskFinalizer: TaskExecutorToFinalizer {
         case .finished:
             if let response = task.response as? HTTPURLResponse {
                 if 200...299 ~= response.statusCode {
-                    let successBlock = DataSuccess.block(requestContainer.receivedData, response)
-                    requestContainer.dataCompletion?(.success(successBlock))
+                    requestContainer.dataCompletion?(response, .success(requestContainer.receivedData))
                 } else {
                     let requestError = RequestError.errorFrom(code: response.statusCode)
-                    requestContainer.dataCompletion?(.failure(requestError))
+                    requestContainer.dataCompletion?(response, .failure(requestError))
                 }
             }
         case .failed:
             if let error = error as NSError? {
                 let requestError = RequestError.errorFrom(code: error.code)
-                requestContainer.dataCompletion?(.failure(requestError))
+                requestContainer.dataCompletion?(task.response as? HTTPURLResponse, .failure(requestError))
             }
         default:
-            requestContainer.dataCompletion?(.failure(.clientError))
+            requestContainer.dataCompletion?(task.response as? HTTPURLResponse, .failure(.clientError))
         }
     }
     
@@ -88,11 +87,10 @@ class TaskFinalizer: TaskExecutorToFinalizer {
         case .finished:
             if let response = task.response as? HTTPURLResponse {
                 if 200...299 ~= response.statusCode {
-                    let successBlock = DownloadSuccess.block(requestContainer.downloadFileURL, response)
-                    requestContainer.downloadCompletion?(.success(successBlock))
+                    requestContainer.downloadCompletion?(response, .success(requestContainer.downloadFileURL))
                 } else {
                     let requestError = RequestError.errorFrom(code: response.statusCode)
-                    requestContainer.downloadCompletion?(.failure(requestError))
+                    requestContainer.downloadCompletion?(response, .failure(requestError))
                 }
                 self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
             }
@@ -105,12 +103,12 @@ class TaskFinalizer: TaskExecutorToFinalizer {
                     requestContainer.currentState = .paused
                 } else {
                     requestError = RequestError.errorFrom(code: error.code)
-                    requestContainer.downloadCompletion?(.failure(requestError))
+                    requestContainer.downloadCompletion?(task.response as? HTTPURLResponse, .failure(requestError))
                     self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
                 }
             }
         default:
-            requestContainer.downloadCompletion?(.failure(.clientError))
+            requestContainer.downloadCompletion?(task.response as? HTTPURLResponse, .failure(.clientError))
             self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
         }
     }
@@ -120,20 +118,19 @@ class TaskFinalizer: TaskExecutorToFinalizer {
         case .finished:
             if let response = task.response as? HTTPURLResponse {
                 if 200...299 ~= response.statusCode {
-                    let successBlock = UploadSuccess.block(requestContainer.receivedData, response)
-                    requestContainer.uploadCompletion?(.success(successBlock))
+                    requestContainer.uploadCompletion?(response, .success(requestContainer.receivedData))
                 } else {
                     let requestError = RequestError.errorFrom(code: response.statusCode)
-                    requestContainer.uploadCompletion?(.failure(requestError))
+                    requestContainer.uploadCompletion?(response, .failure(requestError))
                 }
             }
         case .failed:
             if let error = error as NSError? {
                 let requestError = RequestError.errorFrom(code: error.code)
-                requestContainer.uploadCompletion?(.failure(requestError))
+                requestContainer.uploadCompletion?(task.response as? HTTPURLResponse, .failure(requestError))
             }
         default:
-            requestContainer.uploadCompletion?(.failure(.clientError))
+            requestContainer.uploadCompletion?(task.response as? HTTPURLResponse, .failure(.clientError))
         }
     }
     
@@ -142,9 +139,9 @@ class TaskFinalizer: TaskExecutorToFinalizer {
             let requestError = RequestError.errorFrom(code: error.code)
             switch requestContainer.requestType {
             case .download:
-                requestContainer.downloadCompletion?(.failure(requestError))
+                requestContainer.downloadCompletion?(nil, .failure(requestError))
             case .upload:
-                requestContainer.uploadCompletion?(.failure(requestError))
+                requestContainer.uploadCompletion?(nil, .failure(requestError))
             default:
                 break
             }

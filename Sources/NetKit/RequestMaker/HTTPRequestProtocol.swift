@@ -49,7 +49,7 @@ public enum HTTPMethod: String {
     ///A CONNECT request urges your proxy to establish an HTTP tunnel to the remote end-point.
     ///With SSL(HTTPS), only the two remote end-points understand the requests, and
     ///the proxy cannot decipher them. Hence, all it does is open that tunnel using CONNECT,
-    //and lets the two end-points (webserver and client) talk to each other directly.
+    ///and lets the two end-points (webserver and client) talk to each other directly.
     case CONNECT
     ///The OPTIONS method is used to describe the communication options for the target resource.
     ///This method allows the client to determine the options and/or requirements
@@ -57,7 +57,7 @@ public enum HTTPMethod: String {
     ///without implying a resource action or initiating a resource retrieval.
     case OPTIONS
     ///The PATCH method is used to apply partial modifications to a resource.
-    //The PATCH HTTP methods can be used to update partial resources.
+    ///The PATCH HTTP methods can be used to update partial resources.
     ///For instance, when you only need to update one field of the resource.
     case PATCH
 }
@@ -84,7 +84,8 @@ public enum BodyEncryption {
 
 @available (iOS 12.0, OSX 10.14, *)
 extension CharacterSet {
-    public static let nmURLQueryAllowed: CharacterSet = {
+    public static let nkURLQueryAllowed: CharacterSet = {
+        //https://en.wikipedia.org/wiki/Percent-encoding
         let generalDelimitersToEncode = ":#[]@" // does not include "?" or "/" due to RFC 3986 - Section 3.4
         let subDelimitersToEncode = "!$&'()*+,;="
         let encodableDelimiters = CharacterSet(charactersIn: "\(generalDelimitersToEncode)\(subDelimitersToEncode)")
@@ -122,7 +123,7 @@ public extension RequestProtocol {
         //set requestHeaders for request
         urlRequest.allHTTPHeaderFields = self.requestHeaders
         //set query parameters for request
-        if let queryParams = self.queryParams,
+        if let queryParams = self.queryParams, queryParams.count > 0,
             let queryParamsEncoding = self.queryParamsEncoding {
             self.setQueryTo(urlRequest: &urlRequest,
                             urlEncoding: queryParamsEncoding,
@@ -170,10 +171,10 @@ public extension RequestProtocol {
         case .percentEncoded:
             urlComponents?.percentEncodedQueryItems = [URLQueryItem]()
             for (name, value) in queryParams {
-                let encodedName = name.addingPercentEncoding(withAllowedCharacters: .nmURLQueryAllowed) ?? name
-                let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .nmURLQueryAllowed) ?? value
+                let encodedName = name.addingPercentEncoding(withAllowedCharacters: .nkURLQueryAllowed) ?? name
+                let encodedValue = value.addingPercentEncoding(withAllowedCharacters: .nkURLQueryAllowed) ?? value
                 let queryItem = URLQueryItem.init(name: encodedName, value: encodedValue)
-                urlComponents?.queryItems?.append(queryItem)
+                urlComponents?.percentEncodedQueryItems?.append(queryItem)
             }
             urlRequest.url = urlComponents?.url
             ///Applicable for PUT and POST method.

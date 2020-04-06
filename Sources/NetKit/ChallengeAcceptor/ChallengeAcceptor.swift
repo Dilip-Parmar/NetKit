@@ -98,8 +98,9 @@ final class ChallengeAcceptor {
                     let serverCertificateBytes = CFDataGetBytePtr(serverCertificateData)
                     let serverCertificateDataSize = CFDataGetLength(serverCertificateData)
                     let serverCertificate = NSData(bytes: serverCertificateBytes, length: serverCertificateDataSize)
-                    let certificateFileName = Bundle.main.path(forResource: authDetail?.certificateFileName,
-                                                               ofType: "cer")
+                    let certFileExt = (authDetail?.sslCertFileNameWidExt?.nsStr)?.pathExtension
+                    let certificateFileName = Bundle.main.path(forResource: authDetail?.sslCertFileNameWidExt,
+                                                               ofType: certFileExt)
                     if let certificateFileName = certificateFileName {
                         if let clientCertificate = NSData(contentsOfFile: certificateFileName) {
                             // The pinnning check
@@ -114,5 +115,17 @@ final class ChallengeAcceptor {
         }
         // Pinning failed
         completionHandler(.cancelAuthenticationChallenge, nil)
+    }
+}
+
+extension String {
+    var nsStr: NSString {
+        return self as NSString
+    }
+    var pathExtension: String {
+        return nsStr.pathExtension
+    }
+    var lastPathComponent: String {
+        return nsStr.lastPathComponent
     }
 }

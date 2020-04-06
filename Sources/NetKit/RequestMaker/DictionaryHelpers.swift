@@ -26,7 +26,7 @@ extension Dictionary where Key == String, Value == String {
     /// To encode Query parameters as URLEncoded
     func urlEncodedQueryParams() -> String {
         let pairs = reduce([]) { current, keyValPair -> [String] in
-            if let encodedVal = "\(keyValPair.value)".addingPercentEncoding(withAllowedCharacters: .nmURLQueryAllowed) {
+            if let encodedVal = "\(keyValPair.value)".addingPercentEncoding(withAllowedCharacters: .nkURLQueryAllowed) {
                 return current + ["\(keyValPair.key)=\(encodedVal)"]
             }
             return current

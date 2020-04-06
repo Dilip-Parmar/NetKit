@@ -35,7 +35,7 @@ class RequestMaker: ServiceToRequestMaker {
                         authDetail: AuthDetail?,
                         dataCompletion: @escaping DataCompletion) -> RequestContainer? {
         guard let request = httpRequest.prepare() else {
-            dataCompletion(.failure(RequestError.clientError))
+            dataCompletion(nil, .failure(RequestError.clientError))
             return nil
         }
         let requestContainer = RequestContainer.init(httpRequest: request,
@@ -52,7 +52,7 @@ class RequestMaker: ServiceToRequestMaker {
                         progressBlock: ProgressBlock?,
                         downloadCompletion: @escaping DownloadCompletion) -> RequestContainer? {
         guard let request = httpRequest.prepare() else {
-            downloadCompletion(.failure(RequestError.clientError))
+            downloadCompletion(nil, .failure(RequestError.clientError))
             return nil
         }
         let requestContainer = RequestContainer.init(httpRequest: request,
@@ -71,11 +71,11 @@ class RequestMaker: ServiceToRequestMaker {
                         progressBlock: ProgressBlock?,
                         uploadCompletion: @escaping UploadCompletion) -> RequestContainer? {
         guard let request = httpRequest.prepare() else {
-            uploadCompletion(.failure(RequestError.clientError))
+            uploadCompletion(nil, .failure(RequestError.clientError))
             return nil
         }
         guard let fileData = try? Data(contentsOf: fileURL) else {
-            uploadCompletion(.failure(RequestError.clientError))
+            uploadCompletion(nil, .failure(RequestError.clientError))
             return nil
         }
         let pathExtension = fileURL.pathExtension

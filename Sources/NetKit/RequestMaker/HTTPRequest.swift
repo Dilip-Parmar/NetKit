@@ -22,7 +22,7 @@
 import Foundation
 
 @available (iOS 12.0, OSX 10.14, *)
-public class HTTPRequest: RequestProtocol {
+open class HTTPRequest: RequestProtocol {
 
     public var baseURL: String
     public var method: HTTPMethod

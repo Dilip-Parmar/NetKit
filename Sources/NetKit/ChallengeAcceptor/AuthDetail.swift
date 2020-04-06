@@ -27,16 +27,16 @@ public class AuthDetail: AuthProtocol {
     public var shouldValidateHost: Bool
     public var host: String?
     public var userCredential: URLCredential?
-    public var certificateFileName: String?
+    public var sslCertFileNameWidExt: String?
     public init(authType: AuthType,
                 shouldValidateHost: Bool,
                 host: String?,
                 userCredential: URLCredential?,
-                certificateFileName: String?) {
+                sslCertFileNameWidExt: String?) {
         self.authType = authType
         self.shouldValidateHost = shouldValidateHost
         self.host = host
         self.userCredential = userCredential
-        self.certificateFileName = certificateFileName
+        self.sslCertFileNameWidExt = sslCertFileNameWidExt
     }
 }

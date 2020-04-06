@@ -24,8 +24,14 @@ import Foundation
 /// Request Authentication Type
 @available (iOS 12.0, OSX 10.14, *)
 public enum AuthType {
+    //All are credential based authentication
     case HTTPBasic
     case HTTPDigest
+    case NTLM
+    case negotiate
+    case clientCertificate
+    
+    //Certificate based authentication
     case serverTrust
 }
 
@@ -36,5 +42,5 @@ public protocol AuthProtocol {
     var shouldValidateHost: Bool { get }
     var host: String? { get }
     var userCredential: URLCredential? { get }
-    var certificateFileName: String? { get }
+    var sslCertFileNameWidExt: String? { get }
 }
