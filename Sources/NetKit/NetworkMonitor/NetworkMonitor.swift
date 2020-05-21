@@ -38,17 +38,19 @@ final class NetworkMonitor {
     }
     private static var sharedInstance: NetworkMonitor?
     private var networkMonitor: NWPathMonitor?
-    
+    private var isNetworkConnected: Bool = false
     private init() {
         let queue = DispatchQueue(label: "NetKit\(UUID().uuidString)", qos: .background)
         self.networkMonitor = NWPathMonitor()
-        self.networkMonitor?.pathUpdateHandler = { path in
+        self.networkMonitor?.pathUpdateHandler = { [weak self] path in
             if path.status == .satisfied {
+                self?.isNetworkConnected = true
                 DispatchQueue.main.async {
                     let notificationName = Notification.Name(rawValue: NetworkStatusNotification.Available)
                     NotificationCenter.default.post(name: notificationName, object: nil)
                 }
             } else {
+                self?.isNetworkConnected = false
                 DispatchQueue.main.async {
                     let notificationName = Notification.Name(rawValue: NetworkStatusNotification.Offline)
                     NotificationCenter.default.post(name: notificationName, object: nil)
@@ -65,6 +67,10 @@ final class NetworkMonitor {
     static func dispose() {
         NetworkMonitor.sharedInstance = nil
         debugPrint("NetworkMonitor - \(self) sharedInstance = nil")
+    }
+    
+    func getNetworkStatus() -> Bool {
+        return self.isNetworkConnected
     }
     
     deinit {

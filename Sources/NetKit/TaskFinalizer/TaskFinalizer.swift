@@ -46,18 +46,29 @@ class TaskFinalizer: TaskExecutorToFinalizer {
             case (task as? URLSessionDataTask, .data):
                 self.handleDataTask(task: task, error: error, requestContainer: requestContainer)
                 self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
+                self.logger?.log(request: task.currentRequest,
+                                 response: task.response,
+                                 error: error,
+                                 responseData: requestContainer.receivedData)
                 
             case (task as? URLSessionDownloadTask, .download):
                 self.handleDownloadTask(task: task, error: error, requestContainer: requestContainer)
+                self.logger?.log(request: task.currentRequest,
+                                 response: task.response,
+                                 error: error,
+                                 responseData: requestContainer.downloadFileURL)
                 
             case (task as? URLSessionUploadTask, .upload):
                 self.handleUploadTask(task: task, error: error, requestContainer: requestContainer)
                 self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
-            
+                self.logger?.log(request: task.currentRequest,
+                                 response: task.response,
+                                 error: error,
+                                 responseData: requestContainer.receivedData)
+                
             default:
                 break
             }
-            self.logger?.log(request: task.currentRequest, response: task.response, error: error)
         }
     }
     

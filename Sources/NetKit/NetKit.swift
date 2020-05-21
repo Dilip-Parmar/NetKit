@@ -26,11 +26,15 @@ public typealias SessionDelegate = URLSessionDelegate & URLSessionDataDelegate
 @available (iOS 12.0, OSX 10.14, *)
 /// NetKit Main class
 public class NetKit {
-    internal var networkMonitor: NetworkMonitor?
+    private var networkMonitor: NetworkMonitor?
+
     private static var monitorInstances: Int = 0
     var requestMaker: RequestMaker?
     var taskExecutor: TaskExecutor?
     var taskDispatcher: TaskDispatcher?
+    public var isNetworkConnected: Bool {
+        return self.networkMonitor?.getNetworkStatus() ?? false
+    }
     
     private init() {}
     @available (iOS 12.0, OSX 10.14, *)
@@ -40,6 +44,10 @@ public class NetKit {
                             waitsForConnectivity: Bool,
                             waitingTimeForConnectivity: TimeInterval) {
         self.init()
+
+        self.networkMonitor = NetworkMonitor.shared
+        NetKit.monitorInstances += 1
+
         let authManager = ChallengeAcceptor.init()
         self.taskExecutor = TaskExecutor.init(sessionConfiguration: sessionConfiguration,
                                               sessionDelegate: sessionDelegate,
@@ -47,8 +55,7 @@ public class NetKit {
                                               waitsForConnectivity: waitsForConnectivity,
                                               waitingTimeForConnectivity: waitingTimeForConnectivity,
                                               authManager: authManager)
-        self.networkMonitor = NetworkMonitor.shared
-        NetKit.monitorInstances += 1
+
         self.taskDispatcher = TaskDispatcher.init(taskExecutor: self.taskExecutor)
         self.requestMaker = RequestMaker.init(dispatcher: self.taskDispatcher)
         self.taskExecutor?.taskDispatcher = self.taskDispatcher

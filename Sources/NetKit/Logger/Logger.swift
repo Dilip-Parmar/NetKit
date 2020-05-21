@@ -59,63 +59,107 @@ internal class Logger {
     }
     
     // MARK: - Logging
-    func log(request: URLRequest?, response: URLResponse?, error: Error?) {
+    func log(request: URLRequest?, response: URLResponse?, error: Error?, responseData: Any?) {
         self.loggerQueue?.async {
             //Write to file
-            self.writeToFile(request: request, response: response, error: error)
+            self.writeToFile(request: request, response: response, error: error, responseData: responseData)
             
             //Continue to print logs in console
-            debugPrint("\n\n--------------- Request Log Starts ---------------\n")
-            debugPrint("--------------- Request Headers ---------------\n")
+            debugPrint("", terminator: "\n\n")
+            debugPrint("--------------- Request Log Starts ---------------", terminator: "\n\n")
+            debugPrint("--------------- Request Headers ---------------", terminator: "\n\n")
             if let request = request, let allHTTPHeaderFields = request.allHTTPHeaderFields {
+                if let url = request.url {
+                    debugPrint("Request URL - \(String(describing: url))", terminator: "\n")
+                }
                 for (headerKey, headerValue) in allHTTPHeaderFields {
-                    debugPrint("\(headerKey) - \(headerValue)\n")
+                    debugPrint("\(headerKey) - \(headerValue)", terminator: "\n")
                 }
             }
-            debugPrint("--------------- Response Headers ---------------\n")
+            debugPrint("", terminator: "\n\n")
+            debugPrint("--------------- Response Headers ---------------", terminator: "\n\n")
             if let response = response as? HTTPURLResponse {
+                if let url = response.url {
+                    debugPrint("Response URL - \(String(describing: url))", terminator: "\n")
+                }
                 for (headerKey, headerValue) in response.allHeaderFields {
-                    debugPrint("\(headerKey) - \(headerValue)\n")
+                    debugPrint("\(headerKey) - \(headerValue)", terminator: "\n")
+                }
+                debugPrint("Status Code - \(String(describing: response.statusCode))", terminator: "\n\n")
+                if let downloadURL = responseData as? URL {
+                    debugPrint("Downloaded file URL - \(String(describing: downloadURL))", terminator: "\n")
+                } else if let data = responseData as? Data,
+                    let jsonStr = data.printableJSON {
+                    debugPrint("Response JSON -")
+                    debugPrint(jsonStr)
                 }
             }
             if let error = error, let errorFound = error as NSError? {
-                debugPrint("--------------- Error ---------------\n")
-                debugPrint("Error Code - \(errorFound.code)\n")
-                debugPrint("Error Domain - \(errorFound.domain)\n")
-                debugPrint("Error UserInfo - \(errorFound.userInfo)\n")
+                debugPrint("--------------- Error ---------------", terminator: "\n\n")
+                debugPrint("Error Code - \(errorFound.code)", terminator: "\n")
+                debugPrint("Error Domain - \(errorFound.domain)", terminator: "\n")
+                debugPrint("Error UserInfo - \(errorFound.userInfo)", terminator: "\n\n")
             }
-            debugPrint("--------------- Request Log Ends ---------------\n")
+            debugPrint("--------------- Request Log Ends ---------------", terminator: "\n\n")
         }
     }
     
     // MARK: - Write to file
-    private func writeToFile(request: URLRequest?, response: URLResponse?, error: Error?) {
+    // swiftlint:disable cyclomatic_complexity
+    private func writeToFile(request: URLRequest?, response: URLResponse?, error: Error?, responseData: Any?) {
         if self.fileName != nil {
             self.fileHandle?.seekToEndOfFile()
             var logStr: String = "\n\n"
-            logStr += "--------------- Request Log Starts ---------------\n"
-            logStr += "--------------- Request Headers ---------------\n"
+            logStr += "--------------- Request Log Starts ---------------\n\n"
+            logStr += "--------------- Request Headers ---------------\n\n"
             if let request = request, let allHTTPHeaderFields = request.allHTTPHeaderFields {
+                if let url = request.url {
+                    logStr += "Request URL - \(String(describing: url))\n"
+                }
                 for (headerKey, headerValue) in allHTTPHeaderFields {
                     logStr += "\(headerKey) - \(headerValue)\n"
                 }
             }
-            logStr += "--------------- Response Headers ---------------\n"
+            logStr += "\n\n--------------- Response Headers ---------------\n\n"
             if let response = response as? HTTPURLResponse {
+                if let url = response.url {
+                    logStr += "Response URL - \(String(describing: url))\n"
+                }
                 for (headerKey, headerValue) in response.allHeaderFields {
                     logStr += "\(headerKey) - \(headerValue)\n"
                 }
+                logStr += "Status Code - \(response.statusCode)\n"
+                if let downloadURL = responseData as? URL {
+                    logStr += "Downloaded file URL - \(String(describing: downloadURL))"
+                } else if let data = responseData as? Data,
+                    let jsonStr = data.printableJSON {
+                    logStr += "Response JSON -"
+                    logStr += jsonStr as String
+                }
             }
             if let error = error, let errorFound = error as NSError? {
-                logStr += "--------------- Error ---------------\n"
+                logStr += "\n\n--------------- Error ---------------\n"
                 logStr += "Error Code - \(errorFound.code)\n"
                 logStr += "Error Domain - \(errorFound.domain)\n"
-                logStr += "Error UserInfo - \(errorFound.userInfo)\n"
+                logStr += "Error UserInfo - \(errorFound.userInfo)\n\n"
             }
-            logStr += "--------------- Request Log Ends ---------------\n"
+            logStr += "\n\n--------------- Request Log Ends ---------------\n\n"
             if let logData = logStr.data(using: .utf8, allowLossyConversion: false) {
                 fileHandle?.write(logData)
             }
         }
+    }
+}
+
+extension Data {
+    var printableJSON: NSString? {
+        var jsonStr: NSString?
+        if let jsonObject = try? JSONSerialization.jsonObject(with: self, options: []) {
+            if let data = try? JSONSerialization.data(withJSONObject: jsonObject, options: [.prettyPrinted]) {
+                jsonStr = NSString(data: data,
+                encoding: String.Encoding.utf8.rawValue)
+            }
+        }
+        return jsonStr
     }
 }
