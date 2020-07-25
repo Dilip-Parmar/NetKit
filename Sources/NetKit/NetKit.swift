@@ -28,10 +28,8 @@ public typealias SessionDelegate = URLSessionDelegate & URLSessionDataDelegate
 public class NetKit {
     private var networkMonitor: NetworkMonitor?
 
-    private static var monitorInstances: Int = 0
     var requestMaker: RequestMaker?
     var taskExecutor: TaskExecutor?
-    var taskDispatcher: TaskDispatcher?
     public var isNetworkConnected: Bool {
         return self.networkMonitor?.getNetworkStatus() ?? false
     }
@@ -45,8 +43,7 @@ public class NetKit {
                             waitingTimeForConnectivity: TimeInterval) {
         self.init()
 
-        self.networkMonitor = NetworkMonitor.shared
-        NetKit.monitorInstances += 1
+        self.networkMonitor = NetworkMonitor()
 
         let authManager = ChallengeAcceptor.init()
         self.taskExecutor = TaskExecutor.init(sessionConfiguration: sessionConfiguration,
@@ -56,10 +53,9 @@ public class NetKit {
                                               waitingTimeForConnectivity: waitingTimeForConnectivity,
                                               authManager: authManager)
 
-        self.taskDispatcher = TaskDispatcher.init(taskExecutor: self.taskExecutor)
-        self.requestMaker = RequestMaker.init(dispatcher: self.taskDispatcher)
-        self.taskExecutor?.taskDispatcher = self.taskDispatcher
-        self.taskDispatcher?.startObservingRequestNow()
+        let taskDispatcher = TaskDispatcher.init(taskExecutor: self.taskExecutor)
+        self.requestMaker = RequestMaker.init(dispatcher: taskDispatcher)
+        self.taskExecutor?.taskDispatcher = taskDispatcher
     }
     
     /// To destroy current session
@@ -77,14 +73,9 @@ public class NetKit {
     
     deinit {
         debugPrint("NetKit deinit call")
-        NetKit.monitorInstances -= 1
-        if NetKit.monitorInstances == 0 {
-            self.networkMonitor?.stopNetworkMonitoring()
-            NetworkMonitor.dispose()
-        }
+        self.networkMonitor?.stopNetworkMonitoring()
         self.networkMonitor = nil
         self.requestMaker = nil
         self.taskExecutor = nil
-        self.taskDispatcher = nil
     }
 }

@@ -21,7 +21,6 @@
 //SOFTWARE.
 import Foundation
 import CoreServices
-import MobileCoreServices
 
 @available (iOS 12.0, OSX 10.14, *)
 public extension NetKit {

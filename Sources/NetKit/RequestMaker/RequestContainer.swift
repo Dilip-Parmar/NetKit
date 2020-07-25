@@ -63,7 +63,7 @@ enum RequestCurrentState {
 final class RequestContainer {
     
     @available (iOS 12.0, OSX 10.14, *)
-    class ThreadSafeContainer {
+    struct ThreadSafeContainer {
         var requestId: String = "\(UUID())"
         var dataCompletion: DataCompletion?
         var downloadCompletion: DownloadCompletion?
@@ -81,7 +81,6 @@ final class RequestContainer {
         var authDetail: AuthDetail?
         var resumeData: Data?
     }
-    private var threadSafeContainer: ThreadSafeContainer?
     private var protectedValues: SafetyManager<ThreadSafeContainer>
 
     public var requestId: String {
@@ -165,8 +164,7 @@ final class RequestContainer {
     }
     @available (iOS 12.0, OSX 10.14, *)
     init() {
-        self.threadSafeContainer = ThreadSafeContainer.init()
-        self.protectedValues = SafetyManager.init(value: self.threadSafeContainer)
+        self.protectedValues = SafetyManager.init(value: ThreadSafeContainer.init())
         self.currentState = .initiated
         self.taskId = -1
     }
@@ -208,6 +206,5 @@ final class RequestContainer {
         self.protectedValues.write { (values) in
             values = nil
         }
-        self.threadSafeContainer = nil
     }
 }

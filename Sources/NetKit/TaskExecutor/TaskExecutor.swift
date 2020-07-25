@@ -28,7 +28,12 @@ class TaskExecutor: TaskCancellable {
     private var executorQueue: DispatchQueue?
     private var eventManager: EventManager?
     internal var urlSession: URLSession?
-    weak var taskDispatcher: TaskDispatcher?
+    var taskDispatcher: TaskDispatcher? {
+        willSet {
+            self.taskFinalizer = TaskFinalizer.init(dispatcher: newValue)
+        }
+    }
+
     private var taskFinalizer: TaskFinalizer?
     private var progressQueue: DispatchQueue?
     // MARK: - Initializer
@@ -53,7 +58,6 @@ class TaskExecutor: TaskCancellable {
         }
         
         self.eventManager = EventManager.init(executor: self, authManager: authManager)
-        self.taskFinalizer = TaskFinalizer.init(dispatcher: self.taskDispatcher)
         self.executorQueue = DispatchQueue(label: "NetKit\(UUID())", qos: .default)
         self.progressQueue = DispatchQueue.init(label: "NetKit\(UUID())", qos: .userInitiated)
         self.urlSession = URLSession.init(configuration: sessionConfiguration,

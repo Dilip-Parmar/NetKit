@@ -30,16 +30,9 @@ public struct NetworkStatusNotification {
 
 @available (iOS 12.0, OSX 10.14, *)
 final class NetworkMonitor {
-    static var shared: NetworkMonitor {
-        if sharedInstance == nil {
-            sharedInstance = NetworkMonitor()
-        }
-        return sharedInstance!
-    }
-    private static var sharedInstance: NetworkMonitor?
     private var networkMonitor: NWPathMonitor?
     private var isNetworkConnected: Bool = false
-    private init() {
+    init() {
         let queue = DispatchQueue(label: "NetKit\(UUID().uuidString)", qos: .background)
         self.networkMonitor = NWPathMonitor()
         self.networkMonitor?.pathUpdateHandler = { [weak self] path in
@@ -64,16 +57,12 @@ final class NetworkMonitor {
         self.networkMonitor?.cancel()
     }
     
-    static func dispose() {
-        NetworkMonitor.sharedInstance = nil
-        debugPrint("NetworkMonitor - \(self) sharedInstance = nil")
-    }
-    
     func getNetworkStatus() -> Bool {
         return self.isNetworkConnected
     }
     
     deinit {
+        self.networkMonitor = nil
         debugPrint("NetworkMonitor - \(self) deinit call")
     }
 }

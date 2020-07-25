@@ -67,11 +67,17 @@ internal class Logger {
             //Continue to print logs in console
             debugPrint("", terminator: "\n\n")
             debugPrint("--------------- Request Log Starts ---------------", terminator: "\n\n")
-            debugPrint("--------------- Request Headers ---------------", terminator: "\n\n")
             if let request = request, let allHTTPHeaderFields = request.allHTTPHeaderFields {
                 if let url = request.url {
                     debugPrint("Request URL - \(String(describing: url))", terminator: "\n")
                 }
+                if let body = request.httpBody, let json = body.printableJSON {
+                    debugPrint("Request Body -", terminator: "\n")
+                    debugPrint(json, terminator: "\n")
+                } else {
+                    debugPrint("", terminator: "\n")
+                }
+                debugPrint("--------------- Request Headers ---------------", terminator: "\n\n")
                 for (headerKey, headerValue) in allHTTPHeaderFields {
                     debugPrint("\(headerKey) - \(headerValue)", terminator: "\n")
                 }
@@ -85,7 +91,7 @@ internal class Logger {
                 for (headerKey, headerValue) in response.allHeaderFields {
                     debugPrint("\(headerKey) - \(headerValue)", terminator: "\n")
                 }
-                debugPrint("Status Code - \(String(describing: response.statusCode))", terminator: "\n\n")
+                debugPrint("Status Code - \(String(describing: response.statusCode))", terminator: "\n")
                 if let downloadURL = responseData as? URL {
                     debugPrint("Downloaded file URL - \(String(describing: downloadURL))", terminator: "\n")
                 } else if let data = responseData as? Data,
@@ -111,11 +117,11 @@ internal class Logger {
             self.fileHandle?.seekToEndOfFile()
             var logStr: String = "\n\n"
             logStr += "--------------- Request Log Starts ---------------\n\n"
-            logStr += "--------------- Request Headers ---------------\n\n"
             if let request = request, let allHTTPHeaderFields = request.allHTTPHeaderFields {
                 if let url = request.url {
-                    logStr += "Request URL - \(String(describing: url))\n"
+                    logStr += "Request URL - \(String(describing: url))\n\n"
                 }
+                logStr += "--------------- Request Headers ---------------\n\n"
                 for (headerKey, headerValue) in allHTTPHeaderFields {
                     logStr += "\(headerKey) - \(headerValue)\n"
                 }
