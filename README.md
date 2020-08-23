@@ -55,6 +55,7 @@ A simple HTTP library written in Swift (URLSession Wrapper). It has VIPER like a
 - HTTP Basic Authentication
 - HTTP Digest Authentication
 - Request Body Encryption (SHA256)
+- Retry for all types of request
 - Free
 
 ## Requirements
@@ -85,7 +86,7 @@ https://github.com/Dilip-Parmar/NetKit
 ## How to use
 ## Initialization
 ```ruby
-let netKit = NetKit.init(sessionConfiguration: sessionConfiguration, sessionDelegate: nil, commonHeaders: ["Content-Type":"application/json"], waitsForConnectivity: false, waitingTimeForConnectivity: 300)
+let netKit = NetKit.init(sessionConfiguration: sessionConfiguration, sessionDelegate: nil, commonHeaders: ["Content-Type":"application/json"], waitsForConnectivity: false, waitingTimeForConnectivity: 300, statusCodesForRetry: [Int]? = nil)
 ```
 It's easy to provide session configuration. The available types are Default, Ephemeral and Background.
 Use [URLSessionConfiguration](https://developer.apple.com/documentation/foundation/urlsessionconfiguration) to get one of the available type.
@@ -107,12 +108,15 @@ Use [URLSessionConfiguration](https://developer.apple.com/documentation/foundati
 
 `waitingTimeForConnectivity` - in seconds.
 
+`statusCodesForRetry` - HTTP status codes for retry.
+
+
 ## Single Request
 ```ruby
 let queryParames = ["country":"in", "apiKey":"daae11"]
 let request = HTTPRequest.init(baseURL: "https://www.google.com", path: "/safe", method: .GET, requestBody: nil, bodyEncoding: nil, requestHeaders: ["Content-Type":"application/json"], queryParams: queryParames, queryParamsEncoding: .default, cachePolicy: .reloadIgnoringCacheData, timeoutInterval: 60, networkServiceType: .background, bodyEncryption: nil)
 
-let taskId = netkit.send(request: request, authDetail: nil, completionBlock: { (urlResponse, result) in
+let taskId = netkit.send(request: request, authDetail: nil, maxRetry: Int? = 3, completionBlock: { (urlResponse, result) in
 switch result {
     case .failure(let error):
        print("\(error!)")
@@ -132,7 +136,7 @@ let request = HTTPRequest.init(baseURL: "https://www.google.com", path: "/safe",
 
 let taskId = netkit.sendDownload(request: request, authDetail: nil, progressBlock: { (progress) in
 print(progress)
-}, completionBlock: { (urlResponse, result) in
+}, maxRetry: Int? = 3, completionBlock: { (urlResponse, result) in
     switch result {      
       case .success(let url):
         print("\(url!)")
@@ -157,7 +161,7 @@ netkit.resumeDownloadRequestBy(taskId: taskId)
 let fileURL = URL.init(fileURLWithPath: "/Users/...../file.jpg")
 let taskId = netkit.sendUpload(request: request, fileURL: fileURL, authDetail: nil, progressBlock: { (progress) in
 print(progress)
-}, completionBlock: { (urlResponse, result) in
+}, maxRetry: Int? = 3, completionBlock: { (urlResponse, result) in
    switch result {
     case .failure(let error):
       print("\(error!)")
@@ -182,7 +186,7 @@ netkit.resumeUploadRequestBy(taskId: taskId)
 ## Cancel Request
 ```ruby
 //Cancel given request
-netkit.cancelRequestBy(taskId: taskId, taskType: .download)
+netkit.cancelRequestBy(taskId: taskId)
 
 //Cancel all requests
 netkit.cancelAllRequests()
