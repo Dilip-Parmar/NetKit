@@ -28,19 +28,23 @@ protocol ServiceToRequestMaker {
     @available (iOS 12.0, OSX 10.14, *)
     func prepareRequest(httpRequest: HTTPRequest,
                         authDetail: AuthDetail?,
+                        maxRetry: Int?,
                         dataCompletion: @escaping DataCompletion) -> RequestContainer?
     
     @available (iOS 12.0, OSX 10.14, *)
     func prepareRequest(httpRequest: HTTPRequest,
                         authDetail: AuthDetail?,
                         progressBlock: ProgressBlock?,
+                        maxRetry: Int?,
                         downloadCompletion: @escaping DownloadCompletion) -> RequestContainer?
     
+    // swiftlint:disable function_parameter_count
     @available (iOS 12.0, OSX 10.14, *)
     func prepareRequest(httpRequest: HTTPRequest,
                         fileURL: URL,
                         authDetail: AuthDetail?,
                         progressBlock: ProgressBlock?,
+                        maxRetry: Int?,
                         uploadCompletion: @escaping UploadCompletion) -> RequestContainer?
     
     @available (iOS 12.0, OSX 10.14, *)

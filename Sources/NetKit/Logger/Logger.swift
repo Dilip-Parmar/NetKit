@@ -30,7 +30,7 @@ internal class Logger {
     // MARK: - Initializer
     init(fileName: String?) {
         self.fileName = fileName
-        self.loggerQueue = DispatchQueue.init(label: "NetKit\(UUID())", qos: .background)
+        self.loggerQueue = DispatchQueue.init(label: "NetKit\(UUID())", qos: .background, attributes: .concurrent)
     }
     private lazy var fileHandle: FileHandle? = {
         var fileHandle: FileHandle?

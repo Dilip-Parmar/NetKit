@@ -33,7 +33,7 @@ final class NetworkMonitor {
     private var networkMonitor: NWPathMonitor?
     private var isNetworkConnected: Bool = false
     init() {
-        let queue = DispatchQueue(label: "NetKit\(UUID().uuidString)", qos: .background)
+        let queue = DispatchQueue(label: "NetKit\(UUID().uuidString)", qos: .background, attributes: .concurrent)
         self.networkMonitor = NWPathMonitor()
         self.networkMonitor?.pathUpdateHandler = { [weak self] path in
             if path.status == .satisfied {

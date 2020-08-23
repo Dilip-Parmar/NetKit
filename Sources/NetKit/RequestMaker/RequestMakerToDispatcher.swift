@@ -25,4 +25,5 @@ import Foundation
 protocol RequestMakerToDispatcher {
     func dispatchTask(requestContainer: RequestContainer?)
     func dispatchExistingTask(requestContainer: RequestContainer?)
+    func dispatchFailedTask(requestContainer: RequestContainer?)
 }

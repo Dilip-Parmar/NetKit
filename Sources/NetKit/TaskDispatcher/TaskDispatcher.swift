@@ -32,7 +32,7 @@ class TaskDispatcher: RequestMakerToDispatcher, TaskExecutorToDispatcher, TaskFi
     // MARK: - Initializer
     @available (iOS 12.0, OSX 10.14, *)
     init(taskExecutor: TaskExecutor?) {
-        self.dispatchQueue = DispatchQueue(label: "NetKit\(UUID())", qos: .default)
+        self.dispatchQueue = DispatchQueue(label: "NetKit\(UUID())", qos: .default, attributes: .concurrent)
         self.taskExecutor = taskExecutor
         self.protectedRequestPool = SafetyManager.init(value: [RequestContainer]())
     }
@@ -84,6 +84,14 @@ class TaskDispatcher: RequestMakerToDispatcher, TaskExecutorToDispatcher, TaskFi
             containers?.removeAll(where: { (container) -> Bool in
                 container.requestId == requestId
             })
+        })
+    }
+    
+    @available (iOS 12.0, OSX 10.14, *)
+    func dispatchFailedTask(requestContainer: RequestContainer?) {
+        let deadlineTime = DispatchTime.now() + Double(requestContainer?.retryInSeconds ?? 0)
+        self.dispatchQueue?.asyncAfter(deadline: deadlineTime, execute: {
+            self.dispatchExistingTask(requestContainer: requestContainer)
         })
     }
     

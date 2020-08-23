@@ -40,7 +40,8 @@ public class NetKit {
                             sessionDelegate: SessionDelegate?,
                             commonHeaders: [String: String],
                             waitsForConnectivity: Bool,
-                            waitingTimeForConnectivity: TimeInterval) {
+                            waitingTimeForConnectivity: TimeInterval,
+                            statusCodesForRetry: [Int]? = nil) {
         self.init()
 
         self.networkMonitor = NetworkMonitor()
@@ -51,7 +52,8 @@ public class NetKit {
                                               commonHeaders: commonHeaders,
                                               waitsForConnectivity: waitsForConnectivity,
                                               waitingTimeForConnectivity: waitingTimeForConnectivity,
-                                              authManager: authManager)
+                                              authManager: authManager,
+                                              statusCodesForRetry: statusCodesForRetry)
 
         let taskDispatcher = TaskDispatcher.init(taskExecutor: self.taskExecutor)
         self.requestMaker = RequestMaker.init(dispatcher: taskDispatcher)

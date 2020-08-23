@@ -28,9 +28,11 @@ class TaskExecutor: TaskCancellable {
     private var executorQueue: DispatchQueue?
     private var eventManager: EventManager?
     internal var urlSession: URLSession?
+    private var statusCodesForRetry: [Int]?
+    
     var taskDispatcher: TaskDispatcher? {
         willSet {
-            self.taskFinalizer = TaskFinalizer.init(dispatcher: newValue)
+            self.taskFinalizer = TaskFinalizer.init(dispatcher: newValue, statusCodesForRetry: self.statusCodesForRetry)
         }
     }
 
@@ -46,7 +48,9 @@ class TaskExecutor: TaskCancellable {
          commonHeaders: [String: String],
          waitsForConnectivity: Bool,
          waitingTimeForConnectivity: TimeInterval,
-         authManager: ChallengeAcceptor?) {
+         authManager: ChallengeAcceptor?,
+         statusCodesForRetry: [Int]? = nil) {
+        
         //Should wait for network or fail immediately
         sessionConfiguration.waitsForConnectivity = waitsForConnectivity
         
@@ -58,26 +62,25 @@ class TaskExecutor: TaskCancellable {
         }
         
         self.eventManager = EventManager.init(executor: self, authManager: authManager)
-        self.executorQueue = DispatchQueue(label: "NetKit\(UUID())", qos: .default)
-        self.progressQueue = DispatchQueue.init(label: "NetKit\(UUID())", qos: .userInitiated)
+        self.executorQueue = DispatchQueue(label: "NetKit\(UUID())", qos: .default, attributes: .concurrent)
+        self.progressQueue = DispatchQueue.init(label: "NetKit\(UUID())", qos: .userInitiated, attributes: .concurrent)
         self.urlSession = URLSession.init(configuration: sessionConfiguration,
                                           delegate: (sessionDelegate != nil) ? sessionDelegate! : self.eventManager,
                                           delegateQueue: nil)
+        self.statusCodesForRetry = statusCodesForRetry
     }
     
     // MARK: - Task Execution
     @available (iOS 12.0, OSX 10.14, *)
     func executeTask(requestContainer: RequestContainer?) {
-        self.executorQueue?.async {
-            if let requestContainer = requestContainer {
-                switch requestContainer.requestType {
-                case .data:
-                    self.handleDataTask(requestContainer: requestContainer)
-                case .download:
-                    self.handleDownloadTask(requestContainer: requestContainer)
-                case .upload:
-                    self.handleUploadTask(requestContainer: requestContainer)
-                }
+        if let requestContainer = requestContainer {
+            switch requestContainer.requestType {
+            case .data:
+                self.handleDataTask(requestContainer: requestContainer)
+            case .download:
+                self.handleDownloadTask(requestContainer: requestContainer)
+            case .upload:
+                self.handleUploadTask(requestContainer: requestContainer)
             }
         }
     }

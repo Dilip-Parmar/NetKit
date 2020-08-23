@@ -26,10 +26,12 @@ class TaskFinalizer: TaskExecutorToFinalizer {
     
     private weak var dispatcher: TaskDispatcher?
     private var logger: Logger?
+    private var statusCodesForRetry: [Int]?
     
-    init(dispatcher: TaskDispatcher?) {
+    init(dispatcher: TaskDispatcher?, statusCodesForRetry: [Int]?) {
         self.dispatcher = dispatcher
         self.logger = Logger.init(fileName: "NetKitLogs.txt")
+        self.statusCodesForRetry = statusCodesForRetry
     }
     deinit {
         self.dispatcher = nil
@@ -41,35 +43,64 @@ class TaskFinalizer: TaskExecutorToFinalizer {
         
         if let requestContainer = requestContainer {
             let tuple = (task, requestContainer.requestType)
-            
             switch tuple {
             case (task as? URLSessionDataTask, .data):
-                self.handleDataTask(task: task, error: error, requestContainer: requestContainer)
-                self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
-                self.logger?.log(request: requestContainer.request,
-                                 response: task.response,
-                                 error: error,
-                                 responseData: requestContainer.receivedData)
-                
+                if self.shouldHandleFailedTask(task: task,
+                                               requestContainer: requestContainer,
+                                               error: error as NSError?) {
+                    self.handleFailedTask(requestContainer: requestContainer)
+                } else {
+                    self.handleDataTask(task: task, error: error, requestContainer: requestContainer)
+                    self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
+                    self.logger?.log(request: requestContainer.request,
+                                     response: task.response,
+                                     error: error,
+                                     responseData: requestContainer.receivedData)
+                }
             case (task as? URLSessionDownloadTask, .download):
-                self.handleDownloadTask(task: task, error: error, requestContainer: requestContainer)
-                self.logger?.log(request: requestContainer.request,
-                                 response: task.response,
-                                 error: error,
-                                 responseData: requestContainer.downloadFileURL)
-                
+                if self.shouldHandleFailedTask(task: task,
+                                               requestContainer: requestContainer,
+                                               error: error as NSError?) {
+                    self.handleFailedTask(requestContainer: requestContainer)
+                } else {
+                    self.handleDownloadTask(task: task, error: error, requestContainer: requestContainer)
+                    self.logger?.log(request: requestContainer.request,
+                                     response: task.response,
+                                     error: error,
+                                     responseData: requestContainer.downloadFileURL)
+                }
             case (task as? URLSessionUploadTask, .upload):
-                self.handleUploadTask(task: task, error: error, requestContainer: requestContainer)
-                self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
-                self.logger?.log(request: requestContainer.request,
-                                 response: task.response,
-                                 error: error,
-                                 responseData: requestContainer.receivedData)
-                
+                if self.shouldHandleFailedTask(task: task,
+                                               requestContainer: requestContainer,
+                                               error: error as NSError?) {
+                    self.handleFailedTask(requestContainer: requestContainer)
+                } else {
+                    self.handleUploadTask(task: task, error: error, requestContainer: requestContainer)
+                    self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
+                    self.logger?.log(request: requestContainer.request,
+                                     response: task.response,
+                                     error: error,
+                                     responseData: requestContainer.receivedData)
+                }
             default:
                 break
             }
         }
+    }
+    
+    func shouldHandleFailedTask(task: URLSessionTask, requestContainer: RequestContainer, error: NSError?) -> Bool {
+        var shouldRetry: Bool = false
+        //Give us HTTP status codes to rety otherwise maxRetry parameter will be ignored
+        if let statusCodesForRetry = self.statusCodesForRetry, statusCodesForRetry.count > 0 {
+            if let error = error, statusCodesForRetry.contains(error.code) {
+                shouldRetry = true
+            } else if let response = task.response as? HTTPURLResponse,
+                statusCodesForRetry.contains(response.statusCode) {
+                shouldRetry = true
+            }
+        }
+        //Let's check, are we left with more retry ?
+        return shouldRetry && requestContainer.maxRetry > 0
     }
     
     private func handleDataTask(task: URLSessionTask, error: Error?, requestContainer: RequestContainer) {
@@ -157,6 +188,20 @@ class TaskFinalizer: TaskExecutorToFinalizer {
                 break
             }
             self.dispatcher?.removeFromRequestPool(requestId: requestContainer.requestId)
+        }
+    }
+    
+    func handleFailedTask(requestContainer: RequestContainer?) {
+        if let requestContainer = requestContainer {
+            //Let's reset common properties
+            requestContainer.maxRetry -= 1
+            requestContainer.currentState = .submitted
+            requestContainer.receivedData = nil
+            requestContainer.receivedData = Data()
+            requestContainer.downloadFileURL = nil
+            self.dispatcher?.dispatchFailedTask(requestContainer: requestContainer)
+            requestContainer.retryInSeconds += 2.0 //Let's increment by 2 seconds
+            print("Next retry in seconds \(requestContainer.retryInSeconds)")
         }
     }
 }

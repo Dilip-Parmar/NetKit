@@ -33,6 +33,7 @@ class RequestMaker: ServiceToRequestMaker {
     @available (iOS 12.0, OSX 10.14, *)
     func prepareRequest(httpRequest: HTTPRequest,
                         authDetail: AuthDetail?,
+                        maxRetry: Int?,
                         dataCompletion: @escaping DataCompletion) -> RequestContainer? {
         guard let request = httpRequest.prepare() else {
             dataCompletion(nil, .failure(RequestError.clientError))
@@ -40,7 +41,8 @@ class RequestMaker: ServiceToRequestMaker {
         }
         let requestContainer = RequestContainer.init(httpRequest: request,
                                                      authDetail: authDetail,
-                                                     dataCompletion: dataCompletion)
+                                                     dataCompletion: dataCompletion,
+                                                     maxRetry: maxRetry)
         requestContainer.currentState = .submitted
         self.dispatcher?.dispatchTask(requestContainer: requestContainer)
         return requestContainer
@@ -50,6 +52,7 @@ class RequestMaker: ServiceToRequestMaker {
     func prepareRequest(httpRequest: HTTPRequest,
                         authDetail: AuthDetail?,
                         progressBlock: ProgressBlock?,
+                        maxRetry: Int?,
                         downloadCompletion: @escaping DownloadCompletion) -> RequestContainer? {
         guard let request = httpRequest.prepare() else {
             downloadCompletion(nil, .failure(RequestError.clientError))
@@ -58,7 +61,8 @@ class RequestMaker: ServiceToRequestMaker {
         let requestContainer = RequestContainer.init(httpRequest: request,
                                                      authDetail: authDetail,
                                                      downloadCompletion: downloadCompletion,
-                                                     progressBlock: progressBlock)
+                                                     progressBlock: progressBlock,
+                                                     maxRetry: maxRetry)
         requestContainer.currentState = .submitted
         self.dispatcher?.dispatchTask(requestContainer: requestContainer)
         return requestContainer
@@ -69,6 +73,7 @@ class RequestMaker: ServiceToRequestMaker {
                         fileURL: URL,
                         authDetail: AuthDetail?,
                         progressBlock: ProgressBlock?,
+                        maxRetry: Int? = 0,
                         uploadCompletion: @escaping UploadCompletion) -> RequestContainer? {
         guard let request = httpRequest.prepare() else {
             uploadCompletion(nil, .failure(RequestError.clientError))
@@ -85,7 +90,8 @@ class RequestMaker: ServiceToRequestMaker {
                                                      fileData: uploadData.requestBodyData,
                                                      authDetail: authDetail,
                                                      uploadCompletion: uploadCompletion,
-                                                     progressBlock: progressBlock)
+                                                     progressBlock: progressBlock,
+                                                     maxRetry: maxRetry)
         requestContainer.request?.setValue(uploadData.contentDisposition, forHTTPHeaderField: "Content-Disposition")
         requestContainer.request?.setValue(uploadData.contentType, forHTTPHeaderField: "Content-Type")
         requestContainer.currentState = .submitted

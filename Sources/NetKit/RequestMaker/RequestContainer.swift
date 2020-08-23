@@ -80,6 +80,8 @@ final class RequestContainer {
         var uploadFileData: Data?
         var authDetail: AuthDetail?
         var resumeData: Data?
+        var maxRetry: Int? = 0
+        var retryInSeconds: Double = -1
     }
     private var protectedValues: SafetyManager<ThreadSafeContainer>
 
@@ -162,6 +164,17 @@ final class RequestContainer {
         get { return protectedValues.read()?.resumeData }
         set { protectedValues.write { $0?.resumeData = newValue } }
     }
+    
+    var maxRetry: Int {
+        get { return protectedValues.read()?.maxRetry ?? 0 }
+        set { protectedValues.write { $0?.maxRetry = newValue } }
+    }
+
+    var retryInSeconds: Double {
+        get { return protectedValues.read()?.retryInSeconds ?? -1 }
+        set { protectedValues.write { $0?.retryInSeconds = newValue } }
+    }
+
     @available (iOS 12.0, OSX 10.14, *)
     init() {
         self.protectedValues = SafetyManager.init(value: ThreadSafeContainer.init())
@@ -171,35 +184,46 @@ final class RequestContainer {
     @available (iOS 12.0, OSX 10.14, *)
     convenience init(httpRequest: URLRequest,
                      authDetail: AuthDetail?,
-                     dataCompletion: @escaping DataCompletion) {
+                     dataCompletion: @escaping DataCompletion,
+                     maxRetry: Int? = 0) {
         self.init()
         self.dataCompletion = dataCompletion
         self.requestType = .data
         self.request = httpRequest
+        self.maxRetry = maxRetry ?? 0
+        self.retryInSeconds = 1.0 //default is 1.0 second
     }
+    
     @available (iOS 12.0, OSX 10.14, *)
     convenience init(httpRequest: URLRequest,
                      authDetail: AuthDetail?,
                      downloadCompletion: @escaping DownloadCompletion,
-                     progressBlock: ProgressBlock?) {
+                     progressBlock: ProgressBlock?,
+                     maxRetry: Int? = 0) {
         self.init()
         self.downloadCompletion = downloadCompletion
         self.progressBlock = progressBlock
         self.requestType = .download
         self.request = httpRequest
+        self.maxRetry = maxRetry ?? 0
+        self.retryInSeconds = 1.0 //default is 1.0 second
     }
+    
     @available (iOS 12.0, OSX 10.14, *)
     convenience init(httpRequest: URLRequest,
                      fileData: Data,
                      authDetail: AuthDetail?,
                      uploadCompletion: @escaping UploadCompletion,
-                     progressBlock: ProgressBlock?) {
+                     progressBlock: ProgressBlock?,
+                     maxRetry: Int? = 0) {
         self.init()
         self.uploadCompletion = uploadCompletion
         self.progressBlock = progressBlock
         self.requestType = .upload
         self.request = httpRequest
         self.uploadFileData = fileData
+        self.maxRetry = maxRetry ?? 0
+        self.retryInSeconds = 1.0 //default is 1.0 second
     }
     
     deinit {
