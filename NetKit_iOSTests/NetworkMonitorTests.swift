@@ -26,6 +26,7 @@ import XCTest
 internal class MockNetworkMonitor: NetworkMonitor {
     override init() {
         super.init()
+        self.testStartNetworkMonitoring()
     }
 }
 
@@ -42,7 +43,7 @@ class NetworkMonitorTests: XCTestCase {
     func testNetworkOnEthernetAvailable() {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.ethernet, .wifi, .cellular])
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
@@ -55,7 +56,7 @@ class NetworkMonitorTests: XCTestCase {
     /*func testNetworkOnCellularAvailable() {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.cellular])
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
@@ -67,7 +68,7 @@ class NetworkMonitorTests: XCTestCase {
     func testNetworkOnWifiAvailable() {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.wifi])
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
@@ -79,7 +80,7 @@ class NetworkMonitorTests: XCTestCase {
     func testNetworkOnLoopbackAvailable() {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.loopback])
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
@@ -91,7 +92,7 @@ class NetworkMonitorTests: XCTestCase {
     func testNetworkOnEthernetOffline() {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.ethernet])
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,
@@ -104,7 +105,7 @@ class NetworkMonitorTests: XCTestCase {
     func testNetworkOnCellularOffline() {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.cellular, .wifi])
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,
@@ -116,7 +117,7 @@ class NetworkMonitorTests: XCTestCase {
     func testNetworkOnWifiOffline() {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.wifi, .loopback])
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,
@@ -128,7 +129,7 @@ class NetworkMonitorTests: XCTestCase {
     func testNetworkOnLoopbackOffline() {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.loopback, .cellular])
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,

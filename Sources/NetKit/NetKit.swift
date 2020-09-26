@@ -47,7 +47,6 @@ public class NetKit {
 
         self.networkMonitor = NetworkMonitor.shared
         self.networkMonitor?.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.cellular, .wifi])
-        self.networkMonitor?.startNetworkMonitoring()
 
         let authManager = ChallengeAcceptor.init()
         self.taskExecutor = TaskExecutor.init(sessionConfiguration: sessionConfiguration,

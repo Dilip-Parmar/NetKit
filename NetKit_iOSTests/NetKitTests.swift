@@ -64,7 +64,7 @@ class NetKitTests: XCTestCase {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.ethernet, .wifi, .cellular])
         netKitInstance.setNetworkMonitor(nm: NetworkMonitor.shared)
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
                                                   handler: nil)
@@ -77,7 +77,7 @@ class NetKitTests: XCTestCase {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.loopback])
         netKitInstance.setNetworkMonitor(nm: NetworkMonitor.shared)
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,
                                                   handler: nil)
@@ -90,7 +90,7 @@ class NetKitTests: XCTestCase {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.ethernet])
         netKitInstance.setNetworkMonitor(nm: NetworkMonitor.shared)
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
                                                   handler: nil)
@@ -103,7 +103,7 @@ class NetKitTests: XCTestCase {
         NetworkMonitor.shared = MockNetworkMonitor()
         NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.loopback])
         netKitInstance.setNetworkMonitor(nm: NetworkMonitor.shared)
-        NetworkMonitor.shared.startNetworkMonitoring()
+        
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,
                                                   handler: nil)
