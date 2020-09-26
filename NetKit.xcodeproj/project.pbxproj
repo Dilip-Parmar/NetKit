@@ -123,7 +123,19 @@
 		663027A322DC5CC30022DFF7 /* AuthDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663027A122DC5CC30022DFF7 /* AuthDetail.swift */; };
 		663027A422DC5CC30022DFF7 /* AuthDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663027A122DC5CC30022DFF7 /* AuthDetail.swift */; };
 		663027A522DC5CC30022DFF7 /* AuthDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663027A122DC5CC30022DFF7 /* AuthDetail.swift */; };
+		EEFABA84251F45DB00D9C73D /* NetKit_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFABA83251F45DB00D9C73D /* NetKit_iOSTests.swift */; };
+		EEFABA86251F45DB00D9C73D /* NetKit_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6600A04422DA1C760069D7C0 /* NetKit_iOS.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		EEFABA87251F45DB00D9C73D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6698BB9122DA179D001F8FEB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6600A04322DA1C760069D7C0;
+			remoteInfo = "NetKit iOS";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		66009FB922DA18AE0069D7C0 /* NetKit_iOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetKit_iOS.h; sourceTree = "<group>"; };
@@ -172,6 +184,9 @@
 		6629E58322DBB7EC00242A11 /* TaskExecutorToDispatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskExecutorToDispatcher.swift; sourceTree = "<group>"; };
 		6629E58422DBB7EC00242A11 /* NetKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetKit.swift; sourceTree = "<group>"; };
 		663027A122DC5CC30022DFF7 /* AuthDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthDetail.swift; sourceTree = "<group>"; };
+		EEFABA81251F45DB00D9C73D /* NetKit_iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetKit_iOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEFABA83251F45DB00D9C73D /* NetKit_iOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetKit_iOSTests.swift; sourceTree = "<group>"; };
+		EEFABA85251F45DB00D9C73D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,6 +215,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEFABA7E251F45DB00D9C73D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEFABA86251F45DB00D9C73D /* NetKit_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -463,7 +486,18 @@
 				66009FCF22DA18D70069D7C0 /* OSX */,
 				66009FD022DA18E20069D7C0 /* tvOS */,
 				66009FD122DA18F10069D7C0 /* watchOS */,
+				EEFABA81251F45DB00D9C73D /* NetKit_iOSTests.xctest */,
+				EEFABA82251F45DB00D9C73D /* NetKit_iOSTests */,
 			);
+			sourceTree = "<group>";
+		};
+		EEFABA82251F45DB00D9C73D /* NetKit_iOSTests */ = {
+			isa = PBXGroup;
+			children = (
+				EEFABA83251F45DB00D9C73D /* NetKit_iOSTests.swift */,
+				EEFABA85251F45DB00D9C73D /* Info.plist */,
+			);
+			path = NetKit_iOSTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -580,13 +614,31 @@
 			productReference = 6600A04422DA1C760069D7C0 /* NetKit_iOS.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		EEFABA80251F45DB00D9C73D /* NetKit_iOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EEFABA89251F45DB00D9C73D /* Build configuration list for PBXNativeTarget "NetKit_iOSTests" */;
+			buildPhases = (
+				EEFABA7D251F45DB00D9C73D /* Sources */,
+				EEFABA7E251F45DB00D9C73D /* Frameworks */,
+				EEFABA7F251F45DB00D9C73D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EEFABA88251F45DB00D9C73D /* PBXTargetDependency */,
+			);
+			name = NetKit_iOSTests;
+			productName = NetKit_iOSTests;
+			productReference = EEFABA81251F45DB00D9C73D /* NetKit_iOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		6698BB9122DA179D001F8FEB /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1100;
+				LastSwiftUpdateCheck = 1130;
 				LastUpgradeCheck = 1100;
 				ORGANIZATIONNAME = "Dilip Parmar";
 				TargetAttributes = {
@@ -605,6 +657,9 @@
 					6600A04322DA1C760069D7C0 = {
 						CreatedOnToolsVersion = 11.0;
 						LastSwiftMigration = 1100;
+					};
+					EEFABA80251F45DB00D9C73D = {
+						CreatedOnToolsVersion = 11.3;
 					};
 				};
 			};
@@ -625,6 +680,7 @@
 				66009FF222DA19430069D7C0 /* NetKit tvOS */,
 				6600A00E22DA195D0069D7C0 /* NetKit watchOS */,
 				6600A04322DA1C760069D7C0 /* NetKit iOS */,
+				EEFABA80251F45DB00D9C73D /* NetKit_iOSTests */,
 			);
 		};
 /* End PBXProject section */
@@ -652,6 +708,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		6600A04222DA1C760069D7C0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEFABA7F251F45DB00D9C73D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -876,7 +939,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EEFABA7D251F45DB00D9C73D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EEFABA84251F45DB00D9C73D /* NetKit_iOSTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		EEFABA88251F45DB00D9C73D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6600A04322DA1C760069D7C0 /* NetKit iOS */;
+			targetProxy = EEFABA87251F45DB00D9C73D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		66009FE922DA19280069D7C0 /* Debug */ = {
@@ -1233,6 +1312,48 @@
 			};
 			name = Release;
 		};
+		EEFABA8A251F45DB00D9C73D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZA62JTXDQN;
+				INFOPLIST_FILE = NetKit_iOSTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "Dilip-Parmar.NetKit-iOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EEFABA8B251F45DB00D9C73D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZA62JTXDQN;
+				INFOPLIST_FILE = NetKit_iOSTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "Dilip-Parmar.NetKit-iOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1277,6 +1398,15 @@
 			buildConfigurations = (
 				6698BBAC22DA179E001F8FEB /* Debug */,
 				6698BBAD22DA179E001F8FEB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EEFABA89251F45DB00D9C73D /* Build configuration list for PBXNativeTarget "NetKit_iOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEFABA8A251F45DB00D9C73D /* Debug */,
+				EEFABA8B251F45DB00D9C73D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
