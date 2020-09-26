@@ -248,9 +248,9 @@ class TaskExecutor: TaskCancellable {
     @available (iOS 12.0, OSX 10.14, *)
     public func purgeSession(shouldCancelRunningTasks: Bool) {
         if shouldCancelRunningTasks {
-            self.urlSession?.finishTasksAndInvalidate()
-        } else {
             self.urlSession?.invalidateAndCancel()
+        } else {
+            self.urlSession?.finishTasksAndInvalidate()
         }
     }
     // MARK: - Task Deinitializer

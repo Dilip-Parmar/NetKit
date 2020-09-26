@@ -123,8 +123,10 @@
 		663027A322DC5CC30022DFF7 /* AuthDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663027A122DC5CC30022DFF7 /* AuthDetail.swift */; };
 		663027A422DC5CC30022DFF7 /* AuthDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663027A122DC5CC30022DFF7 /* AuthDetail.swift */; };
 		663027A522DC5CC30022DFF7 /* AuthDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663027A122DC5CC30022DFF7 /* AuthDetail.swift */; };
-		EEFABA84251F45DB00D9C73D /* NetKit_iOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFABA83251F45DB00D9C73D /* NetKit_iOSTests.swift */; };
 		EEFABA86251F45DB00D9C73D /* NetKit_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6600A04422DA1C760069D7C0 /* NetKit_iOS.framework */; };
+		EEFABA90251F480D00D9C73D /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFABA8F251F480D00D9C73D /* MockURLProtocol.swift */; };
+		EEFABA92251F486A00D9C73D /* NetKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFABA91251F486A00D9C73D /* NetKitTests.swift */; };
+		EEFABA94251F4C1C00D9C73D /* NetworkMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEFABA93251F4C1C00D9C73D /* NetworkMonitorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -185,8 +187,10 @@
 		6629E58422DBB7EC00242A11 /* NetKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetKit.swift; sourceTree = "<group>"; };
 		663027A122DC5CC30022DFF7 /* AuthDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthDetail.swift; sourceTree = "<group>"; };
 		EEFABA81251F45DB00D9C73D /* NetKit_iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NetKit_iOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EEFABA83251F45DB00D9C73D /* NetKit_iOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetKit_iOSTests.swift; sourceTree = "<group>"; };
 		EEFABA85251F45DB00D9C73D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EEFABA8F251F480D00D9C73D /* MockURLProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
+		EEFABA91251F486A00D9C73D /* NetKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetKitTests.swift; sourceTree = "<group>"; };
+		EEFABA93251F4C1C00D9C73D /* NetworkMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -494,7 +498,9 @@
 		EEFABA82251F45DB00D9C73D /* NetKit_iOSTests */ = {
 			isa = PBXGroup;
 			children = (
-				EEFABA83251F45DB00D9C73D /* NetKit_iOSTests.swift */,
+				EEFABA91251F486A00D9C73D /* NetKitTests.swift */,
+				EEFABA93251F4C1C00D9C73D /* NetworkMonitorTests.swift */,
+				EEFABA8F251F480D00D9C73D /* MockURLProtocol.swift */,
 				EEFABA85251F45DB00D9C73D /* Info.plist */,
 			);
 			path = NetKit_iOSTests;
@@ -943,7 +949,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEFABA84251F45DB00D9C73D /* NetKit_iOSTests.swift in Sources */,
+				EEFABA92251F486A00D9C73D /* NetKitTests.swift in Sources */,
+				EEFABA90251F480D00D9C73D /* MockURLProtocol.swift in Sources */,
+				EEFABA94251F4C1C00D9C73D /* NetworkMonitorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1149,11 +1157,13 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_SWIFT_FLAGS = "-D UNITTEST";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dp.NetKit-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1178,6 +1188,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.dp.NetKit-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
@@ -1324,6 +1335,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_SWIFT_FLAGS = "-D UNITTEST";
 				PRODUCT_BUNDLE_IDENTIFIER = "Dilip-Parmar.NetKit-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1345,6 +1357,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "Dilip-Parmar.NetKit-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

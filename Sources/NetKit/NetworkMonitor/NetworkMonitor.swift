@@ -36,7 +36,10 @@ enum NetworkTypeToMonitor {
 }
 
 @available (iOS 12.0, OSX 10.14, *)
-final class NetworkMonitor {
+internal class NetworkMonitor {
+    #if UNITTEST
+    public static var shared: NetworkMonitor!
+    #else
     static var shared: NetworkMonitor {
         if sharedInstance == nil {
             sharedInstance = NetworkMonitor()
@@ -44,64 +47,60 @@ final class NetworkMonitor {
         NetworkMonitor.instanceCount += 1
         return sharedInstance!
     }
-    private var networkTypeForMonitoring: [NetworkTypeToMonitor]
-    private static var sharedInstance: NetworkMonitor?
-    private var networkMonitor: NWPathMonitor?
-    private static var instanceCount = 0
-    private var isConnected: Bool = false
     
     private init() {
-
-        self.networkTypeForMonitoring = [NetworkTypeToMonitor]()
-        self.networkTypeForMonitoring.append(.cellular)
-        self.networkTypeForMonitoring.append(.wifi)
-        
-        #if os(OSX) || os(tvOS)
-            self.networkTypeForMonitoring.append(.ethernet)
-        #endif
-        
-        self.networkTypeForMonitoring.append(.loopback)
-        
+    }
+    #endif
+    
+    private var isConnected: Bool = false
+    private var networkTypeForMonitoring = [NetworkTypeToMonitor]()
+    private var networkMonitor: NWPathMonitor?
+    private static var sharedInstance: NetworkMonitor?
+    private static var instanceCount = 0
+    private var interfaceChecked = 0
+    
+    final func setNetworkInteraceToMonitor(networkTypeForMonitoring: [NetworkTypeToMonitor]) {
+        self.networkTypeForMonitoring = networkTypeForMonitoring
+    }
+    
+    final func startNetworkMonitoring() {
         let queue = DispatchQueue(label: "NetKit\(UUID().uuidString)", qos: .userInteractive)
         self.networkMonitor = NWPathMonitor()
+        
         self.networkMonitor?.pathUpdateHandler = { [weak self] path in
-            if path.usesInterfaceType(.cellular) && self?.networkTypeForMonitoring.contains(.cellular) ?? false {
-                if path.status == .satisfied && self?.isConnected ?? false == false {
+            if path.usesInterfaceType(.cellular) {
+                self?.interfaceChecked += 1
+                if path.status == .satisfied && self?.networkTypeForMonitoring.contains(.cellular) ?? false {
                     self?.isConnected = true
+                }
+            } else if path.usesInterfaceType(.wifi) {
+                self?.interfaceChecked += 1
+                if path.status == .satisfied && self?.networkTypeForMonitoring.contains(.wifi) ?? false {
+                    self?.isConnected = true
+                }
+            } else if path.usesInterfaceType(.wiredEthernet) {
+                self?.interfaceChecked += 1
+                if path.status == .satisfied && self?.networkTypeForMonitoring.contains(.ethernet) ?? false {
+                    self?.isConnected = true
+                }
+            } else if path.usesInterfaceType(.loopback) {
+                self?.interfaceChecked += 1
+                if path.status == .satisfied && self?.networkTypeForMonitoring.contains(.loopback) ?? false {
+                    self?.isConnected = true
+                }
+            }
+            if self?.interfaceChecked == self?.networkTypeForMonitoring.count ||  self?.interfaceChecked == path.availableInterfaces.count {
+                self?.interfaceChecked = 0
+                if self?.isConnected ?? false == true {
                     DispatchQueue.main.async {
                         let notificationName = Notification.Name(rawValue: NetworkStatusNotification.Available)
                         NotificationCenter.default.post(name: notificationName, object: nil)
                     }
-                }
-            } else if path.usesInterfaceType(.wifi) && self?.networkTypeForMonitoring.contains(.wifi) ?? false {
-                if path.status == .satisfied && self?.isConnected ?? false == false {
-                    self?.isConnected = true
+                } else {
                     DispatchQueue.main.async {
-                        let notificationName = Notification.Name(rawValue: NetworkStatusNotification.Available)
+                        let notificationName = Notification.Name(rawValue: NetworkStatusNotification.Offline)
                         NotificationCenter.default.post(name: notificationName, object: nil)
                     }
-                }
-            } else if path.usesInterfaceType(.wiredEthernet) && self?.networkTypeForMonitoring.contains(.ethernet) ?? false {
-                if path.status == .satisfied && self?.isConnected ?? false == false {
-                    self?.isConnected = true
-                    DispatchQueue.main.async {
-                        let notificationName = Notification.Name(rawValue: NetworkStatusNotification.Available)
-                        NotificationCenter.default.post(name: notificationName, object: nil)
-                    }
-                }
-            } else if path.usesInterfaceType(.loopback) && self?.networkTypeForMonitoring.contains(.loopback) ?? false {
-                if path.status == .satisfied && self?.isConnected ?? false == false {
-                    self?.isConnected = true
-                    DispatchQueue.main.async {
-                        let notificationName = Notification.Name(rawValue: NetworkStatusNotification.Available)
-                        NotificationCenter.default.post(name: notificationName, object: nil)
-                    }
-                }
-            } else if path.availableInterfaces.count == 0 && self?.isConnected ?? false == true {
-                self?.isConnected = false
-                DispatchQueue.main.async {
-                    let notificationName = Notification.Name(rawValue: NetworkStatusNotification.Offline)
-                    NotificationCenter.default.post(name: notificationName, object: nil)
                 }
             }
         }
@@ -124,7 +123,7 @@ final class NetworkMonitor {
         debugPrint("NetworkMonitor - \(self) sharedInstance = nil")
     }
     
-    func getNetworkStatus() -> Bool {
+    final func getNetworkStatus() -> Bool {
         return self.isConnected
     }
     

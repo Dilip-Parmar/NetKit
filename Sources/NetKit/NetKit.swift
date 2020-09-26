@@ -46,6 +46,8 @@ public class NetKit {
         self.init()
 
         self.networkMonitor = NetworkMonitor.shared
+        self.networkMonitor?.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.cellular, .wifi])
+        self.networkMonitor?.startNetworkMonitoring()
 
         let authManager = ChallengeAcceptor.init()
         self.taskExecutor = TaskExecutor.init(sessionConfiguration: sessionConfiguration,
@@ -81,4 +83,10 @@ public class NetKit {
         self.requestMaker = nil
         self.taskExecutor = nil
     }
+    
+    #if UNITTEST
+    func setNetworkMonitor(nm: NetworkMonitor) {
+        self.networkMonitor = nm
+    }
+    #endif
 }
