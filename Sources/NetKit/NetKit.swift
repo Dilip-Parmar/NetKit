@@ -26,10 +26,11 @@ public typealias SessionDelegate = URLSessionDelegate & URLSessionDataDelegate
 @available (iOS 12.0, OSX 10.14, *)
 /// NetKit Main class
 public class NetKit {
+    
     private var networkMonitor: NetworkMonitor?
-
     var requestMaker: RequestMaker?
     var taskExecutor: TaskExecutor?
+    
     public var isNetworkConnected: Bool {
         return self.networkMonitor?.getNetworkStatus() ?? false
     }
@@ -44,7 +45,7 @@ public class NetKit {
                             statusCodesForRetry: [Int]? = nil) {
         self.init()
 
-        self.networkMonitor = NetworkMonitor()
+        self.networkMonitor = NetworkMonitor.shared
 
         let authManager = ChallengeAcceptor.init()
         self.taskExecutor = TaskExecutor.init(sessionConfiguration: sessionConfiguration,
