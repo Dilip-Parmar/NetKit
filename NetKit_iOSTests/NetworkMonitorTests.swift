@@ -34,107 +34,104 @@ class NetworkMonitorTests: XCTestCase {
     
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
+        NetworkMonitor.shared = MockNetworkMonitor()
     }
     
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
+        NetworkMonitor.shared.stopNetworkMonitoring()
     }
     
     func testNetworkOnEthernetAvailable() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.ethernet, .wifi, .cellular])
-        
-        
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: true)
+        #endif
+        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.ethernet, .wifi])
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
+        wait(for: [notificationExpectation], timeout: 1.0)
         XCTAssertTrue(NetworkMonitor.shared.getNetworkStatus())
-        NetworkMonitor.shared.stopNetworkMonitoring()
     }
     
-    /*func testNetworkOnCellularAvailable() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.cellular])
-        
-        
+    func testNetworkOnCellularAvailable() {
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: true)
+        #endif
+        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.cellular, .wifi])
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
-        NetworkMonitor.shared.stopNetworkMonitoring()
+        wait(for: [notificationExpectation], timeout: 1.0)
     }
     
     func testNetworkOnWifiAvailable() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.wifi])
-        
-        
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: true)
+        #endif
+        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.wifi, .ethernet])
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
-        NetworkMonitor.shared.stopNetworkMonitoring()
+        wait(for: [notificationExpectation], timeout: 1.0)
     }
     
     func testNetworkOnLoopbackAvailable() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.loopback])
-        
-        
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: true)
+        #endif
+        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.loopback, .wifi, .ethernet])
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
-        NetworkMonitor.shared.stopNetworkMonitoring()
+        wait(for: [notificationExpectation], timeout: 1.0)
     }
     
     func testNetworkOnEthernetOffline() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.ethernet])
-        
-        
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: false)
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
-        NetworkMonitor.shared.stopNetworkMonitoring()
-    }*/
-    
+        wait(for: [notificationExpectation], timeout: 1.0)
+        #endif
+    }
     
     func testNetworkOnCellularOffline() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.cellular, .wifi])
-        
-        
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: false)
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
-        NetworkMonitor.shared.stopNetworkMonitoring()
+        wait(for: [notificationExpectation], timeout: 1.0)
+        #endif
     }
     
     func testNetworkOnWifiOffline() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.wifi, .loopback])
-        
-        
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: false)
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
-        NetworkMonitor.shared.stopNetworkMonitoring()
+        wait(for: [notificationExpectation], timeout: 1.0)
+        #endif
     }
     
     func testNetworkOnLoopbackOffline() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.loopback, .cellular])
-        
-        
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: false)
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
-        NetworkMonitor.shared.stopNetworkMonitoring()
+        wait(for: [notificationExpectation], timeout: 1.0)
+        #endif
     }
 }

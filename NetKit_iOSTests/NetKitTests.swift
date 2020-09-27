@@ -40,10 +40,14 @@ class NetKitTests: XCTestCase {
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.
         netKitInstance = NetKit.init(sessionConfiguration: .ephemeral, sessionDelegate: nil, commonHeaders: [:], waitsForConnectivity: true, waitingTimeForConnectivity: 0.0)
+        NetworkMonitor.shared = MockNetworkMonitor()
+        netKitInstance.setNetworkMonitor(netmonitor: NetworkMonitor.shared)
+        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.ethernet, .wifi, .cellular, .loopback, .other])
     }
     
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
+        NetworkMonitor.shared.stopNetworkMonitoring()
         netKitInstance.cancelAllRequests()
         netKitInstance = nil
     }
@@ -61,55 +65,54 @@ class NetKitTests: XCTestCase {
     }
     
     func testNetworkStatusNotificationAvailable() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.ethernet, .wifi, .cellular])
-        netKitInstance.setNetworkMonitor(nm: NetworkMonitor.shared)
-        
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: true)
+        #endif
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
+        wait(for: [notificationExpectation], timeout: 1.0)
         XCTAssertTrue(NetworkMonitor.shared.getNetworkStatus())
-        NetworkMonitor.shared.stopNetworkMonitoring()
     }
     
     func testNetworkStatusNotificationOffline() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.loopback])
-        netKitInstance.setNetworkMonitor(nm: NetworkMonitor.shared)
-        
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: false)
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
+        wait(for: [notificationExpectation], timeout: 1.0)
         XCTAssertFalse(NetworkMonitor.shared.getNetworkStatus())
         NetworkMonitor.shared.stopNetworkMonitoring()
+        #endif
     }
     
     func testNetworkStatusAvailable() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.ethernet])
-        netKitInstance.setNetworkMonitor(nm: NetworkMonitor.shared)
-        
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: true)
+        #endif
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkAvailable,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
+        wait(for: [notificationExpectation], timeout: 1.0)
         XCTAssertTrue(netKitInstance.isNetworkConnected)
         NetworkMonitor.shared.stopNetworkMonitoring()
     }
     
     func testNetworkStatusOffline() {
-        NetworkMonitor.shared = MockNetworkMonitor()
-        NetworkMonitor.shared.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.loopback])
-        netKitInstance.setNetworkMonitor(nm: NetworkMonitor.shared)
-        
+        #if INTERNETNOTAVAILABLE
+        NetworkMonitor.shared.setNetworkStatus(isConnected: false)
+        NetworkMonitor.shared.testStartNetworkMonitoring()
         let notificationExpectation = expectation(forNotification: .networkOffline,
                                                   object: nil,
                                                   handler: nil)
-        wait(for: [notificationExpectation], timeout: 5.0)
+        wait(for: [notificationExpectation], timeout: 1.0)
         XCTAssertFalse(netKitInstance.isNetworkConnected)
         NetworkMonitor.shared.stopNetworkMonitoring()
+        #endif
     }
     
     func testPurgeSessionWaitForTask() {
@@ -123,21 +126,21 @@ class NetKitTests: XCTestCase {
             XCTAssertEqual(task.count, 1)
             expectaion.fulfill()
         }
-        wait(for: [expectaion], timeout: 5.0)
+        wait(for: [expectaion], timeout: 1.0)
     }
     
     func testPurgeSessionDontWaitForTask() {
         let request = HTTPRequest.init(baseURL: "http://www.google.com", path: "", method: .GET, requestBody: nil, bodyEncoding: nil, requestHeaders: nil, queryParams: nil, queryParamsEncoding: nil, cachePolicy: nil, timeoutInterval: nil, networkServiceType: .default, bodyEncryption: nil)
         let requestId = netKitInstance.send(request: request, authDetail: nil) { _,_ in }
         XCTAssertNotNil(requestId)
-        usleep(1000)
+        sleep(1)
         netKitInstance.purgeSession(shouldCancelRunningTasks: true)
         let expectaion = XCTestExpectation.init(description: "\(#function)\(#file)\(#line)")
         netKitInstance.getAllRequests { (task) in
             XCTAssertEqual(task.count, 0)
             expectaion.fulfill()
         }
-        wait(for: [expectaion], timeout: 5.0)
+        wait(for: [expectaion], timeout: 1.0)
     }
     
     func testSessionDefault() {

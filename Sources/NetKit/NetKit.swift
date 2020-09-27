@@ -44,10 +44,11 @@ public class NetKit {
                             waitingTimeForConnectivity: TimeInterval,
                             statusCodesForRetry: [Int]? = nil) {
         self.init()
-
+        
         self.networkMonitor = NetworkMonitor.shared
         self.networkMonitor?.setNetworkInteraceToMonitor(networkTypeForMonitoring: [.cellular, .wifi])
-
+        self.networkMonitor?.startMonitoring()
+        
         let authManager = ChallengeAcceptor.init()
         self.taskExecutor = TaskExecutor.init(sessionConfiguration: sessionConfiguration,
                                               sessionDelegate: sessionDelegate,
@@ -56,7 +57,7 @@ public class NetKit {
                                               waitingTimeForConnectivity: waitingTimeForConnectivity,
                                               authManager: authManager,
                                               statusCodesForRetry: statusCodesForRetry)
-
+        
         let taskDispatcher = TaskDispatcher.init(taskExecutor: self.taskExecutor)
         self.requestMaker = RequestMaker.init(dispatcher: taskDispatcher)
         self.taskExecutor?.taskDispatcher = taskDispatcher
@@ -84,8 +85,8 @@ public class NetKit {
     }
     
     #if UNITTEST
-    func setNetworkMonitor(nm: NetworkMonitor) {
-        self.networkMonitor = nm
+    func setNetworkMonitor(netmonitor: NetworkMonitor) {
+        self.networkMonitor = netmonitor
     }
     #endif
 }

@@ -43,6 +43,9 @@ internal class NetworkMonitor {
     public func testStartNetworkMonitoring() {
         self.startNetworkMonitoring()
     }
+    public func setNetworkStatus(isConnected: Bool) {
+        self.isConnected = isConnected
+    }
     #else
     static var shared: NetworkMonitor {
         if sharedInstance == nil {
@@ -51,10 +54,7 @@ internal class NetworkMonitor {
         NetworkMonitor.instanceCount += 1
         return sharedInstance!
     }
-    
-    private init() {
-        self.startNetworkMonitoring()
-    }
+    private init() { }
     #endif
     
     private var isConnected: Bool = false
@@ -67,11 +67,22 @@ internal class NetworkMonitor {
         self.networkTypeForMonitoring = networkTypeForMonitoring
     }
     
+    final func startMonitoring() {
+        if NetworkMonitor.instanceCount == 1 {
+            self.startNetworkMonitoring()
+        }
+    }
+    
     private final func startNetworkMonitoring() {
-        let queue = DispatchQueue(label: "NetKit\(UUID().uuidString)", qos: .userInteractive)
         self.networkMonitor = NWPathMonitor()
-        
         self.networkMonitor?.pathUpdateHandler = { [weak self] path in
+            #if INTERNETNOTAVAILABLE
+            if self?.isConnected ?? false {
+                self?.pushOnlineNotification()
+            } else {
+                self?.pushOfflineNotification()
+            }
+            #else
             if path.usesInterfaceType(.cellular) {
                 if path.status == .satisfied &&
                     self?.networkTypeForMonitoring.contains(.cellular) ?? false &&
@@ -82,7 +93,7 @@ internal class NetworkMonitor {
             } else if path.usesInterfaceType(.wifi) {
                 if path.status == .satisfied &&
                     self?.networkTypeForMonitoring.contains(.wifi) ?? false &&
-                self?.isConnected ?? true == false {
+                    self?.isConnected ?? true == false {
                     self?.isConnected = true
                     self?.pushOnlineNotification()
                 }
@@ -96,25 +107,26 @@ internal class NetworkMonitor {
             } else if path.usesInterfaceType(.loopback) {
                 if path.status == .satisfied &&
                     self?.networkTypeForMonitoring.contains(.loopback) ?? false &&
-                self?.isConnected ?? true == false {
+                    self?.isConnected ?? true == false {
                     self?.isConnected = true
                     self?.pushOnlineNotification()
                 }
             } else if path.usesInterfaceType(.other) {
                 if path.status == .satisfied &&
                     self?.networkTypeForMonitoring.contains(.other) ?? false &&
-                self?.isConnected ?? true == false {
+                    self?.isConnected ?? true == false {
                     self?.isConnected = true
                     self?.pushOnlineNotification()
                 }
             } else if path.availableInterfaces.count == 0 && self?.isConnected ?? false == true {
                 self?.isConnected = false
-                DispatchQueue.main.async {
-                    let notificationName = Notification.Name(rawValue: NetworkStatusNotification.Offline)
-                    NotificationCenter.default.post(name: notificationName, object: nil)
-                }
+                self?.pushOfflineNotification()
             }
+            //For checking connected network is captive protal
+            //path.status == .requiresConnection
+            #endif
         }
+        let queue = DispatchQueue(label: "NetKit\(UUID().uuidString)", qos: .userInteractive)
         self.networkMonitor?.start(queue: queue)
     }
     
@@ -125,7 +137,18 @@ internal class NetworkMonitor {
         }
     }
     
+    private func pushOfflineNotification() {
+        DispatchQueue.main.async {
+            let notificationName = Notification.Name(rawValue: NetworkStatusNotification.Offline)
+            NotificationCenter.default.post(name: notificationName, object: nil)
+        }
+    }
+    
     final func stopNetworkMonitoring() {
+        #if UNITTEST
+        self.networkMonitor?.cancel()
+        NetworkMonitor.dispose()
+        #else
         NetworkMonitor.instanceCount -= 1
         if NetworkMonitor.instanceCount <= 0 {
             self.networkMonitor?.cancel()
@@ -133,6 +156,7 @@ internal class NetworkMonitor {
         } else {
             print("\(NetworkMonitor.instanceCount) Net Kit instance(s) exist")
         }
+        #endif
     }
     
     static func dispose() {
