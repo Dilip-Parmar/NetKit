@@ -198,13 +198,26 @@ class TaskExecutor: TaskCancellable {
     @available (iOS 12.0, OSX 10.14, *)
     internal final func handleDownloadCompletion(task: URLSessionDownloadTask,
                                                  location: URL) {
-        self.executorQueue?.async {
-            if let taskContainer = self.taskDispatcher?.taskContainerBy(taskId: task.taskIdentifier) {
-                let filename = String(describing: UUID.init())
-                let fileURL = FileManager.default.urls(for: .documentDirectory,
-                                                       in: .userDomainMask)[0].appendingPathComponent(filename)
-                try? FileManager.default.moveItem(at: location, to: fileURL)
+        if let taskContainer = self.taskDispatcher?.taskContainerBy(taskId: task.taskIdentifier) {
+            var filename = String(describing: UUID.init())
+            if let filenameFound = taskContainer.request?.url?.lastPathComponent {
+                filename = filenameFound
+            }
+            let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let fileURL = docDir.appendingPathComponent(filename)
+            do {
+                try FileManager.default.moveItem(at: location, to: fileURL)
                 taskContainer.downloadFileURL = fileURL
+            } catch let err {
+                print("Error while moving downloaded file - \(err)")
+                do {
+                    try FileManager.default.copyItem(at: location, to: fileURL)
+                    taskContainer.downloadFileURL = fileURL
+                } catch let err {
+                    print(err)
+                    print("Error while copying downloaded file - \(err)")
+                    taskContainer.downloadFileURL = nil
+                }
             }
         }
     }
