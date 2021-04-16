@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
 
   spec.name         = "NetKit"
-  spec.version      = "3.0.3"
+  spec.version      = "3.0.4"
   spec.summary      = "A short description of NetKit."
   spec.description  = <<-DESC
 
